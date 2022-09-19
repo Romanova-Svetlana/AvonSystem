@@ -1,25 +1,29 @@
 package com.avonsystem.utilities
 
+import com.avonsystem.utilities.LogUtil.log
 import java.io.{File, PrintWriter}
 import scala.util.{Try,Success,Failure}
 import scala.io.Source
 
 object FilesUtil {
 
-  // create directory
+  // Сreate directory. Создание директории.
   def createDir(path: String) = {
     val dir = new File(path)
     dir.mkdirs() match {
       case true => // created
+        log("info", s"The $path directory has been successfully created. Директория $path успешно создана.")
         true
       case false if (new File(path).exists == true) => // already exists
+        log("info", s"The $path directory already exists. Директория $path уже существует.")
         true
       case _ => // error
+        log("warn", s"Failed to create directory $path. Не удалось создать директорию $path.", true)
         false
     }
   }
 
-  // reading data from a file
+  // Reading data from a file. Считывание данных из файла.
   def openFile(path: String, mkStr: Boolean = true) = try {
       val source = Source.fromFile(path, "UTF-8")
       val data = mkStr match {
@@ -31,7 +35,7 @@ object FilesUtil {
       case err : Throwable => Failure(err)
   }
 
-  // saving data to a file on disk
+  // Saving data to a file. Сохранение данных в файл.
   def saveFile[T](path: String, text: List[T]) = try { 
       val out = new PrintWriter(path) 
       try {

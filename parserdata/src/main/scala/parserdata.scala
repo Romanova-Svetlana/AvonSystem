@@ -5,7 +5,7 @@ import scala.util.{Success, Failure}
 import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil}
 import FilesUtil.createDir
 import LogUtil.log
-import com.avonsystem.utilities.dbschema.{Country, Url}
+import com.avonsystem.utilities.dbschema.{Countries, Url}
 
 object ParserData extends App {
 
@@ -18,10 +18,12 @@ object ParserData extends App {
           log("ERROR", "Invalid date format. Enter the date in YYYY-MM-DD format. Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД.", true, List(err))
       }     
     case _ => // Daily data collection. Ежедневный сбор данных.
-      Country.nameDir match {
-        case Nill => log("ERROR", "Error getting list of countries. The program has been terminated. Ошибка получения списка стран. Работа программы прекращена.", true)
-        case c => log("info", "Data collection and saving to disk files. Сбор данных и сохранение в файлы на диске.", true)
+      Countries.namesDir match {
+        case c if (c.nonEmpty) => 
+          log("info", "Data collection and saving to disk files. Сбор данных и сохранение в файлы на диске.", true)
           dailyParse(c)
+        case _ => 
+          log("ERROR", "Error getting list of countries. The program has been terminated. Ошибка получения списка стран. Работа программы прекращена.", true)
       }
     }
 
@@ -30,7 +32,7 @@ object ParserData extends App {
     val dateStart = DateTime.dateNow
     val datePath = Setting.archivePath + dateStart + "/"
 
-    for (cd <- country) {
+    for (cd <- countries) {
       createDir(datePath + cd + "/main/") 
       createDir(datePath + cd + "/promo/")
       createDir(datePath + cd + "/promotions/")
