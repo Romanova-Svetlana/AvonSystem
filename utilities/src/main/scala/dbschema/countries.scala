@@ -14,13 +14,24 @@ TABLE countries ( -- страны
   code varchar(5), -- код страны
   PRIMARY KEY ("countries_id")
 );
+
+TABLE countries ( -- страны
+  countries_id smallserial,
+  name varchar(255),
+  name_en varchar(255),
+  code varchar(5), -- код страны
+  PRIMARY KEY ("countries_id")
+);
 */
 
 object Countries {
   def namesDir = { // Names of directories. Названия директорий.
-    select(s"SELECT name_en FROM country") match {
+    select(s"SELECT name_en, language FROM countries_urls INNER JOIN countries USING (countries_id);") match {
       case Success(s) => s.map(col => {
-        col.getString("name_en").toLowerCase.replaceAll(" ", "_")
+        (
+          col.getString("name_en").toLowerCase.replaceAll(" ", "_"),
+          col.getString("language")
+        )
       }).toList
       case Failure(err) => 
         log("warn", "Failed to get list of countries. Не удалось получить список стран.", true, List(err))

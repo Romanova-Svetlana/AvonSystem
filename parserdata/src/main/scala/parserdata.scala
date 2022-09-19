@@ -5,7 +5,7 @@ import scala.util.{Success, Failure}
 import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil}
 import FilesUtil.createDir
 import LogUtil.log
-import com.avonsystem.utilities.dbschema.{Countries, Url}
+import com.avonsystem.utilities.dbschema.{Countries, Urls}
 
 object ParserData extends App {
 
@@ -28,16 +28,22 @@ object ParserData extends App {
     }
 
   // Daily data collection. Ежедневный сбор данных.
-  def dailyParse(countries: List[String]) = {
+  def dailyParse(countries: List[(String, String)]) = {
     val dateStart = DateTime.dateNow
     val datePath = Setting.archivePath + dateStart + "/"
 
     for (cd <- countries) {
-      createDir(datePath + cd + "/main/") 
-      createDir(datePath + cd + "/promo/")
-      createDir(datePath + cd + "/promotions/")
-      createDir(datePath + cd + "/products/")
+      val (name, lang) = cd
+      val dp = s"$datePath$name/$lang"
+      createDir(dp + "/main/") 
+      createDir(dp + "/promo/")
+      createDir(dp + "/promotions/")
+      createDir(dp + "/products/")
     }
+
+//    val suf = new SaveDataFromUrl(dateStart)
+//    suf.openUrlSaveData(Urls.sUrls)
+
 
     //saveUrltoFile.start(urlList)
     //saveUrltoFile.start(UrlTmp.sUrl)
