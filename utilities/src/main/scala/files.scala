@@ -12,13 +12,13 @@ object FilesUtil {
     val dir = new File(path)
     dir.mkdirs() match {
       case true => // created
-        log("info", s"The $path directory has been successfully created. Директория $path успешно создана.")
+        log("info", s"Директория $path успешно создана.")
         true
       case false if (new File(path).exists == true) => // already exists
-        log("info", s"The $path directory already exists. Директория $path уже существует.")
+        log("info", s"Директория $path уже существует.")
         true
       case _ => // error
-        log("warn", s"Failed to create directory $path. Не удалось создать директорию $path.", true)
+        log("warn", s"Не удалось создать директорию $path.", true)
         false
     }
   }
