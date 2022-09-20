@@ -15,15 +15,15 @@ object ParserData extends App {
         case Success(d) => // Date received successfully. Дата получена успешно.
           thisDayParse(d)
         case Failure(err) => 
-          log("ERROR", "Invalid date format. Enter the date in YYYY-MM-DD format. Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД.", true, List(err))
+          log("ERROR", "Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД.", true, List(err))
       }     
     case _ => // Daily data collection. Ежедневный сбор данных.
       Countries.namesDir match {
-        case c if (c.nonEmpty) => 
-          log("info", "Data collection and saving to disk files. Сбор данных и сохранение в файлы на диске.", true)
+        case Nil => 
+          log("ERROR", "Ошибка получения списка стран. Работа программы прекращена.", true)
+        case c => 
+          log("info", "Сбор данных и сохранение в файлы на диске.", true)
           dailyParse(c)
-        case _ => 
-          log("ERROR", "Error getting list of countries. The program has been terminated. Ошибка получения списка стран. Работа программы прекращена.", true)
       }
     }
 
@@ -41,12 +41,9 @@ object ParserData extends App {
       createDir(dp + "/products/")
     }
 
-//    val suf = new SaveDataFromUrl(dateStart)
-//    suf.openUrlSaveData(Urls.sUrls)
+    val suf = new SaveDataFromUrl(dateStart)
+    suf.openUrlSaveData(Urls.sUrls)
 
-
-    //saveUrltoFile.start(urlList)
-    //saveUrltoFile.start(UrlTmp.sUrl)
   }
 
   // обработка данных за определенную дату

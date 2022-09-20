@@ -15,12 +15,16 @@ TABLE countries ( -- страны
   PRIMARY KEY ("countries_id")
 );
 
-TABLE countries ( -- страны
-  countries_id smallserial,
-  name varchar(255),
-  name_en varchar(255),
-  code varchar(5), -- код страны
-  PRIMARY KEY ("countries_id")
+TABLE countries_urls (
+  countries_urls_id smallserial,
+  countries_id smallint,
+  language varchar(5),
+  alternative_language boolean,
+  url varchar(255),
+  img_url varchar(255),
+  product_url varchar(255),
+  promotion_url varchar(255),
+  PRIMARY KEY ("countries_urls_id")
 );
 */
 

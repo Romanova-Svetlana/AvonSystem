@@ -50,4 +50,15 @@ object FilesUtil {
       case err : Throwable => Failure(err)
     }
   
+  // получение данных по url с сайта
+  def openUrl(link: String) = { 
+    try {
+      val urlData = Source.fromURL(link, "UTF-8").mkString
+      Success(urlData)
+    } catch {
+      case err : Throwable => { 
+        Failure(err)
+      }
+    }
+  }
 }
