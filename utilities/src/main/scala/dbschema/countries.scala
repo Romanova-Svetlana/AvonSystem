@@ -38,7 +38,7 @@ object Countries {
         )
       }).toList
       case Failure(err) => 
-        log("warn", "Failed to get list of countries. Не удалось получить список стран.", true, List(err))
+        log("warn", "Не удалось получить список стран.", true, List(err))
         List()
     }
   }

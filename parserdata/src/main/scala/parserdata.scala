@@ -41,8 +41,7 @@ object ParserData extends App {
       createDir(dp + "/products/")
     }
 
-    val suf = new SaveDataFromUrl(dateStart)
-    suf.openUrlSaveData(Urls.sUrls)
+    new SaveDataFromUrl(dateStart).openUrlSaveData(Urls.sUrls)
 
   }
 
