@@ -8,7 +8,7 @@ object Setting {
   val mainPath = "/home/sw/projects/avonsystem"
   val dataPath = mainPath + "data/"
   val archivePath = dataPath + "archive/"
-  val logPath = dataPath + "log/"
+  val logPath = dataPath + "log/" + DateTime.dateNow + "/"
   val logFolder = createDir(logPath)
 
 	val conStr = { 
