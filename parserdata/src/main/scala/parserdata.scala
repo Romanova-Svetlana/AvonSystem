@@ -58,14 +58,11 @@ object ParserData extends App {
           openFile(s"$datePath$country/$url_type/$id.json") match {
             case Success(data) => toDB(data)
             case Failure(err) =>
-              log("WARN", s"Не удалось получить данные за дату $date, $country $language $url_type $id.json", true, List(err))
+              log("WARN", s"Не удалось получить данные за дату $date, $country $language $url_type $id", true, List(err))
           }
       }
 
-      def toDB(data: List[String]) = {
-        println(s"$date $country $language $url_type $id $country_id")
-        println(data.head)
-      }
+      def toDB(data: List[String]) = new AddToDB().start(data.head)
     }
     // на этом месте будет обработка файлов main и promo за определенную дату
     // необходимо: открыть файл, разобрать его через парсер, положить в базу
