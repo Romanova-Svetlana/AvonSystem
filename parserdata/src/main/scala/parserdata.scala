@@ -3,7 +3,7 @@ package com.avonsystem.parserdata
 import scala.util.{Success, Failure}
 
 import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil}
-import FilesUtil.createDir
+import FilesUtil.{createDir, openFile}
 import LogUtil.log
 import com.avonsystem.utilities.dbschema.{Countries, Urls}
 
@@ -42,12 +42,33 @@ object ParserData extends App {
     }
 
     new SaveDataFromUrl(dateStart).openUrlSaveData(Urls.sUrls)
-
+    // на этом месте будет скачивание файлов продуктов, промоакций, изображений
   }
 
   // обработка данных за определенную дату
   def thisDayParse(date: java.time.LocalDate) = {
     val datePath = Setting.archivePath + date + "/"
+
+    for (i <- Urls.sUrls) {
+      val (urls_id, url, url_type, id, country, language, country_id, udate) = i
+
+      openFile(s"$datePath$country/$language/$url_type/$id.json") match {
+        case Success(data) => toDB(data)
+        case Failure(err) =>
+          openFile(s"$datePath$country/$url_type/$id.json") match {
+            case Success(data) => toDB(data)
+            case Failure(err) =>
+              log("WARN", s"Не удалось получить данные за дату $date, $country $language $url_type $id.json", true, List(err))
+          }
+      }
+
+      def toDB(data: List[String]) = {
+        println(s"$date $country $language $url_type $id $country_id")
+        println(data.head)
+      }
+    }
+    // на этом месте будет обработка файлов main и promo за определенную дату
+    // необходимо: открыть файл, разобрать его через парсер, положить в базу
   }
 
 }
