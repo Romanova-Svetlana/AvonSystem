@@ -62,10 +62,8 @@ object ParserData extends App {
           }
       }
 
-      def toDB(data: List[String]) = new AddToDB().start(data.head)
+      def toDB(data: List[String]) = new AddToDB(url_type).add(data.head)
     }
-    // на этом месте будет обработка файлов main и promo за определенную дату
-    // необходимо: открыть файл, разобрать его через парсер, положить в базу
   }
 
 }
