@@ -11,7 +11,10 @@ class AddToDB(url_type: String) {
 		val dp = new DataProcessing(data)
 
 		url_type match {
-			case "main" => dp.brands
+			case "main" => 
+        println(dp.brands)
+//        dp.categories
+//        dp.categoriesList()
       case _ => log("warn", "Неизвестный формат данных", true)
 		}
 

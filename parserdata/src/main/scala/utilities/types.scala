@@ -5,3 +5,7 @@ trait UrlT {
 //  type PromoT = (Int, Int, Boolean, String, String, String, String, String, String, Boolean)
 }
 
+trait ParseT {
+	type CategoryT = (String, String, String, String, String, Int, String, Short, Boolean, Int, Int)
+}
+

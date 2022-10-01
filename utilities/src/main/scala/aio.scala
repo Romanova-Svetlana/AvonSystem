@@ -7,6 +7,4 @@ trait AIO {
   def aioD[T](s: T)   = s.asInstanceOf[Double]
   def aioI[T](s: T)   = s.asInstanceOf[Int]
   def aioB[T](s: T)   = s.asInstanceOf[Boolean]
-  def quotes(s: String) = s.replaceAll("""["„“](.*)["„“]""", "$1")
-  def crupS(s: String) = s.tail.init
 }
