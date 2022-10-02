@@ -6,6 +6,6 @@ trait UrlT {
 }
 
 trait ParseT {
-	type CategoryT = (String, String, String, String, String, Int, String, Short, Boolean, Int, Int)
+	type CategoryT = (String, String, String, String, Int, String, Short, Boolean, Short, Int)
 }
 

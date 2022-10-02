@@ -58,11 +58,14 @@ object ParserData extends App {
           openFile(s"$datePath$country/$url_type/$id.json") match {
             case Success(data) => toDB(data)
             case Failure(err) =>
-              log("WARN", s"Не удалось получить данные за дату $date, $country $language $url_type $id", true, List(err))
+              log("WARN", s"Не удалось считать данные из файла за дату $date, $country $language $url_type $id", true, List(err))
           }
       }
 
-      def toDB(data: List[String]) = new AddToDB(url_type).add(data.head)
+      def toDB(data: List[String]) = new AddToDB(url_type).add(data.head) match {
+        case Success(msg) => log("info", s"$msg $date $country $language $url_type $id")
+        case Failure(err) => log("warn", s"Не удалось распарсить данные $date $country $language $url_type $id", true, List(err))
+      }
     }
   }
 
