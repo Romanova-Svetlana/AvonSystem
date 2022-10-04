@@ -1,6 +1,6 @@
 package com.avonsystem.parserdata
 
-import scala.util.{Try,Success,Failure}
+import scala.util.{Try, Success, Failure}
 import com.avonsystem.utilities.{AIO, TextFormat, LogUtil}
 import LogUtil.log
 
@@ -84,5 +84,34 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
       ),
     )
   } yield prod
+
+  def productsCategories = for {
+    p <- products
+    pl = aioMs(p)
+    pn = crupStr(aioS(pl("\"ProfileNumber\"")))
+    id = aioDI(pl("\"Id\""))
+
+    cl = for {
+      c <- aioL(pl("\"Categories\""))
+      cm = aioMs(c)
+      cat = aioMs(cm("\"Dept\"")) match {
+        case null => aioMs(cm("\"PDept\"")) match {
+          case null => aioMs(cm("\"Level2\"")) match {
+            case null => log("warn", s"Невозможно определить категорию товара $id", true)
+            case ctl => (aioDI(ctl("\"CategoryType\"")), crupStr(aioS(ctl("\"Name\""))), 0)
+          }
+          case pd => aioDI(pd("\"CategoryType\"")) match {
+            case 1 => (1, aioDI(pd("\"Id\"")), toCapitalLetter(crupStr(aioS(pd("\"Name\"")))), aioDI(aioMs(cm("\"Level2\""))("\"Id\"")))
+            case ctpd => (ctpd, aioDI(pd("\"Id\"")), crupStr(aioS(pd("\"Name\""))), 0)
+          }
+        }
+        case d => aioDI(d("\"CategoryType\"")) match {
+          case 1 => (1, aioDI(d("\"Id\"")), toCapitalLetter(crupStr(aioS(d("\"Name\"")))), aioDI(aioMs(cm("\"PDept\""))("\"Id\"")))
+          case ctd => (ctd, aioDI(d("\"Id\"")), crupStr(aioS(d("\"Name\""))), 0)
+        }
+      }
+    } yield cat
+
+  } yield (pn, id, cl)
 
 }
