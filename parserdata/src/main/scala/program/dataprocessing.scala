@@ -7,10 +7,10 @@ import LogUtil.log
 class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
 
   val all = aioMs(d)
-  val data = aioMs(all("\"Data\""))
-  val facets = aioL(data("\"Facets\""))
-  val categories = aioL(data("\"Categories\"")).map(x => (x, 0))
-  val products = aioL(data("\"Products\""))
+  def data = aioMs(all("\"Data\""))
+  def facets = aioL(data("\"Facets\""))
+  def categories = aioL(data("\"Categories\"")).map(x => (x, 0))
+  def products = aioL(data("\"Products\""))
 
   def brands = {
     val entries = for {
@@ -68,7 +68,7 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
         crupStr(aioS(pl("\"PricePerUnitInformation\""))).toLowerCase // ml, piece(s), grams (south_africa), N, gm, g (india), Und, PAIR (colombia)
       ),
       (
-        aioDSh(pl("\"Availability\"")), // доступность, разные небольшие числа, есть всегда
+        aioDSh(pl("\"Availability\"")), // доступность, разные небольшие числа, есть всегда // 2 AvailableSoon (Скоро будет доступно), 3 NoLongerAvailable (Больше недоступно), 0,NotForIndividualSale
         aioD(pl("\"ListPrice\"")), // основная цена, есть всегда
         aioD(pl("\"SalePrice\"")), // цена по скидке, бывает равна 0.0 если нет скидки
         aioD(pl("\"UnitPrice\"")), // цена за юнит, бывает равна 0.0 если нет юнита
@@ -80,7 +80,6 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
         aioB(pl("\"IsOutOfStock\"")), // нет в наличии
         aioB(pl("\"IsNotAvailable\"")), // Не доступен
         crupStr(aioS(pl("\"UnitPriceMeasureUnit\""))), // цена за юнит
-        crupStr(aioS(pl("\"AvailabilityReason\""))) // 2 AvailableSoon (Скоро будет доступно), 3 NoLongerAvailable (Больше недоступно), NotForIndividualSale(Не для индивидуальной продажи)
       ),
     )
   } yield prod
@@ -113,5 +112,33 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
     } yield cat
 
   } yield (pn, id, cl)
+
+  def productsVariants = for {
+    p <- products
+    pl = aioMs(p)
+    pn = crupStr(aioS(pl("\"ProfileNumber\""))) // есть всегда
+    id = aioDI(pl("\"Id\"")) // есть всегда
+
+    variant = aioL(pl("\"VariantGroups\"")) match {
+      case Nil => List()
+      case vg => for {
+        v <- vg
+        vl = aioL(aioMs(v)("\"Variants\""))
+        vr = for {
+          i <- vl
+          ai = aioMs(i)
+          vi = (
+            aioDSh(ai("\"Availability\"")), // доступность, разные небольшие числа, есть всегда
+            crupStr(aioS(ai("\"DisplayLineNumber\""))),
+            crupStr(aioS(ai("\"Name\""))).replaceAll("/", " / "),
+            crupStr(aioS(ai("\"Sku\""))),
+            crupStr(aioS(ai("\"Fsc\""))),
+            crupStr(aioS(ai("\"Type\""))),
+            crupStr(aioS(ai("\"Image\"")))
+          )
+        } yield (pn, id, vi)
+      } yield vr
+    } 
+  } yield variant
 
 }
