@@ -141,4 +141,28 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
     } 
   } yield variant
 
+
+  def productsPromotions(products: List[Any] = products, promotions: List[ProductsPromotionsT] = List()): List[ProductsPromotionsT] = products match {
+    case Nil => promotions
+    case h :: t => 
+      val mProducts = aioMs(h)
+      val profileNumber = crupStr(aioS(mProducts("\"ProfileNumber\"")))
+      val id = aioD(mProducts("\"Id\"")) // есть всегда
+      aioL(mProducts("\"Promotions\"")) match {
+        case null => productsPromotions(t, promotions)
+        case p => 
+          val promotionsList = for {
+            i <- p
+            mI = aioMs(i)
+            res = (
+              profileNumber,
+              id,
+              crupStr(aioS(mI("\"Description\""))),
+              aioD(mI("\"Id\""))
+            )
+          } yield res
+          productsPromotions(t, promotions ::: promotionsList)
+    }
+  }
+
 }

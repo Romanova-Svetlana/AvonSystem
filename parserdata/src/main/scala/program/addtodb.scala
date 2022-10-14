@@ -18,6 +18,7 @@ class AddToDB(url_type: String) {
           dp.productsList
           dp.productsCategories
           dp.productsVariants.flatten.flatten
+          dp.productsPromotions()
           Success("Парсинг данных прошел успешно")
         case _ => 
           log("warn", "Неизвестный формат данных", true)

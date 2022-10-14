@@ -7,5 +7,6 @@ trait UrlT {
 
 trait ParseT {
 	type CategoryT = (String, String, String, String, Int, String, Short, Boolean, Short, Int)
+	type ProductsPromotionsT = (String, Double, String, Double)
 }
 
