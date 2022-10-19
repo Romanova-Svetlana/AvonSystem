@@ -176,4 +176,17 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
     })
   }
 
+  def promo = aioL(all("\"Data\"")).map({
+    case x => 
+      val mPromo = aioMs(x)
+      (
+        crupStr(aioS(mPromo("\"Url\""))),
+        crupStr(aioS(mPromo("\"PromotionId\""))).toInt,
+        crupStr(aioS(mPromo("\"Name\""))),
+        tagP(crupStr(aioS(mPromo("\"Headline\"")))),
+        tagP(crupStr(aioS(mPromo("\"BodyText\"")))),
+        crupStr(aioS(mPromo("\"Image\"")))
+      )
+  })
+
 }

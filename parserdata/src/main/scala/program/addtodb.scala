@@ -14,18 +14,21 @@ class AddToDB(url_type: String) {
   		url_type match {
   			case "main" => 
           dp.brands()
-          println(dp.categoriesList())
+          dp.categoriesList()
           dp.productsCard
           dp.productsPromotions
           dp.productsVariants
           dp.productsCategories
-          Success("Парсинг данных прошел успешно")
+          Success("true")
+        case "promo" =>
+          dp.promo
+          Success("true")
         case "products" => 
           dp.product
           dp.productV
-          Success("Парсинг данных прошел успешно")
+          Success("true")
         case _ => 
-          Failure("Неизвестный формат данных")
+          Success("false")
   		}
     } catch {
       case err : Throwable => Failure(err)
