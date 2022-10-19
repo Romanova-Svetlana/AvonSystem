@@ -20,9 +20,12 @@ class AddToDB(url_type: String) {
           dp.productsVariants
           dp.productsCategories
           Success("Парсинг данных прошел успешно")
+        case "products" => 
+          dp.product
+          dp.productV
+          Success("Парсинг данных прошел успешно")
         case _ => 
-          log("warn", "Неизвестный формат данных", true)
-          Success("Не удалось распарсить данные")
+          Failure("Неизвестный формат данных")
   		}
     } catch {
       case err : Throwable => Failure(err)

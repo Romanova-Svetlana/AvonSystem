@@ -145,4 +145,35 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
     }) 
   }).flatten
 
+  def product = {
+    val p = aioMs(all("\"Product\""))
+    (
+      crupStr(aioS(p("\"ProfileNumber\""))),
+      aioDI(p("\"Id\"")),
+      crupStr(aioS(all("\"Description\""))),
+      crupStr(aioS(all("\"Ingredients\"")))
+    )
+  }
+
+  def productV = {
+    val p = aioMs(all("\"Product\""))
+    val pn = crupStr(aioS(p("\"ProfileNumber\"")))
+    val id = aioDI(p("\"Id\""))
+    aioL(all("\"AllVariants\"")).map({
+      case x => 
+        val mVariants = aioMs(x)
+        (
+          pn,
+          id,
+          aioDSh(mVariants("\"Availability\"")), // доступность, разные небольшие числа, есть всегда
+          crupStr(aioS(mVariants("\"DisplayLineNumber\""))),
+          crupStr(aioS(mVariants("\"Name\""))).replaceAll("/", " / "),
+          crupStr(aioS(mVariants("\"Sku\""))),
+          crupStr(aioS(mVariants("\"Fsc\""))),
+          crupStr(aioS(mVariants("\"Type\""))),
+          crupStr(aioS(mVariants("\"Image\"")))
+        )        
+    })
+  }
+
 }
