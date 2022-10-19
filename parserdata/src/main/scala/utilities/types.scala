@@ -6,7 +6,8 @@ trait UrlT {
 }
 
 trait ParseT {
-	type CategoryT = (String, String, String, String, Int, String, Short, Boolean, Short, Int)
-	type ProductsPromotionsT = (String, Double, String, Double)
+	type CategoryT = (Int, String, String, Int)
+	type ProductsListT = List[(String, Int, Map[String, Any])]
+	type ProductsPromotionsT = (String, Int, String, Double)
 }
 

@@ -13,12 +13,12 @@ class AddToDB(url_type: String) {
 
   		url_type match {
   			case "main" => 
-          dp.brands
-          dp.categoriesList()
-          dp.productsList
+          dp.brands()
+          println(dp.categoriesList())
+          dp.productsCard
+          dp.productsPromotions
+          dp.productsVariants
           dp.productsCategories
-          dp.productsVariants.flatten.flatten
-          dp.productsPromotions()
           Success("Парсинг данных прошел успешно")
         case _ => 
           log("warn", "Неизвестный формат данных", true)

@@ -9,160 +9,140 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
   val all = aioMs(d)
   def data = aioMs(all("\"Data\""))
   def facets = aioL(data("\"Facets\""))
-  def categories = aioL(data("\"Categories\"")).map(x => (x, 0))
-  def products = aioL(data("\"Products\""))
+  def categories = aioL(data("\"Categories\"")).map(x => (aioMs(x), 0))
+  def products = aioL(data("\"Products\"")).map(x => aioMs(x))
 
-  def brands = {
-    val entries = for {
-      f <- facets
-      fm = aioMs(f)
-    } yield if (aioD(fm("\"FacetType\"")).toInt == 1) aioL(fm("\"Entries\"")) else List()
-
-    entries.find(_.nonEmpty) match {
-      case Some(bs) => for { b <- bs } yield toCapitalLetter(quotes(crupStr(aioS(aioMs(b)("\"Value\"")))))
-      case None => List()
-    }
+  def brands(facet: List[Any] = facets, brand: List[String] = List()): List[String] = facet match {
+    case Nil => brand
+    case h :: t => 
+      val mh = aioMs(h)
+      aioDSh(mh("\"FacetType\"")) match {
+        case 1 => brands(t, brand ::: aioL(mh("\"Entries\"")).map(x => toCapitalLetter(quotes(crupStr(aioS(aioMs(x)("\"Value\"")))))))
+        case _ => brands(t, brand)
+      }
   }
 
-  def categoriesList[T](cat: List[(T, Int)] = categories, res: List[CategoryT] = List()): List[CategoryT] = cat match {
+  def categoriesList(cat: List[(Map[String, Any], Int)] = categories, res: List[CategoryT] = List()): List[CategoryT] = cat match {
     case Nil => res.reverse
     case h :: t => 
-      val (a, p) = h
-      val m = aioMs(a)
-      val id = aioD(m("\"Id\"")).toInt
+      val (m, p) = h
+      val id = aioDI(m("\"Id\""))
       val r: CategoryT = (
-        crupStr(aioS(m("\"Name\""))), 
-        crupStr(aioS(m("\"NameMobile\""))), 
-        crupStr(aioS(m("\"Description\""))), 
-        crupStr(aioS(m("\"SearchWords\""))), 
         id, 
-        crupStr(aioS(m("\"Image\""))), 
-        aioD(m("\"CategoryType\"")).toShort, 
-        aioB(m("\"Active\"")), 
-        aioD(m("\"ImageWidth\"")).toShort,
+        crupStr(aioS(m("\"Name\""))), 
+        crupStr(aioS(m("\"SearchWords\""))), 
         p
       )
       aioL(m("\"Children\"")) match {
         case Nil => categoriesList(t, r :: res)
-        case l => categoriesList(t ::: l.map(x => (x, id)), r :: res)
+        case l => categoriesList(t ::: l.map(x => (aioMs(x), id)), r :: res)
       }
   }
 
-  def productsList = for {
+  def productsCard = for {
     p <- products
-    pl = aioMs(p)
+    pn = crupStr(aioS(p("\"ProfileNumber\""))) // есть всегда
+    id = aioDI(p("\"Id\"")) // есть всегда
     prod = (
-      crupStr(aioS(pl("\"ProfileNumber\""))), // есть всегда
-      aioDI(pl("\"Id\"")), // есть всегда
       (
-        aioDI(pl("\"ProductId\"")), 
-        crupStr(aioS(pl("\"SingleVariantFsc\""))),
-        crupStr(aioS(pl("\"SingleVariantSku\""))),
-        aioB(pl("\"IsShadeVariant\"")),
-        aioB(pl("\"IsSizeVariant\"")), 
-        crupStr(aioS(pl("\"Name\""))), // Название
-        crupStr(aioS(pl("\"SocialSharingDescription\""))), // Краткое описание, включает в себя HTML-теги
-        crupStr(aioS(pl("\"SearchWords\""))), // поисковые слова, есть не везде
-        toCapitalLetter(crupStr(aioS(pl("\"Brand\"")))),
-        crupStr(aioS(pl("\"UnitPriceText\""))).toLowerCase, // мера измерения граммы и мл 
-        crupStr(aioS(pl("\"PricePerUnitInformation\""))).toLowerCase // ml, piece(s), grams (south_africa), N, gm, g (india), Und, PAIR (colombia)
+        pn,
+        id,
+        aioDI(p("\"ProductId\"")), 
+        crupStr(aioS(p("\"SingleVariantFsc\""))),
+        crupStr(aioS(p("\"SingleVariantSku\""))),
+        aioB(p("\"IsShadeVariant\"")),
+        aioB(p("\"IsSizeVariant\"")), 
+        crupStr(aioS(p("\"Name\""))), // Название
+        crupStr(aioS(p("\"SocialSharingDescription\""))), // Краткое описание, включает в себя HTML-теги
+        crupStr(aioS(p("\"SearchWords\""))), // поисковые слова, есть не везде
+        toCapitalLetter(crupStr(aioS(p("\"Brand\"")))),
+        crupStr(aioS(p("\"UnitPriceText\""))).toLowerCase, // мера измерения граммы и мл 
+        crupStr(aioS(p("\"PricePerUnitInformation\""))).toLowerCase // ml, piece(s), grams (south_africa), N, gm, g (india), Und, PAIR (colombia)
       ),
       (
-        aioDSh(pl("\"Availability\"")), // доступность, разные небольшие числа, есть всегда // 2 AvailableSoon (Скоро будет доступно), 3 NoLongerAvailable (Больше недоступно), 0,NotForIndividualSale
-        aioD(pl("\"ListPrice\"")), // основная цена, есть всегда
-        aioD(pl("\"SalePrice\"")), // цена по скидке, бывает равна 0.0 если нет скидки
-        aioD(pl("\"UnitPrice\"")), // цена за юнит, бывает равна 0.0 если нет юнита
-        aioB(pl("\"IsNew\"")), // новинка
-        aioD(pl("\"Rating\"")), // рейтинг
-        aioB(pl("\"HasPromotion\"")), 
-        aioDI(pl("\"RatingCount\"")), // количество проголосовавших в рейтинге
-        crupStr(aioS(pl("\"Currency\""))), // валюта, есть всегда
-        aioB(pl("\"IsOutOfStock\"")), // нет в наличии
-        aioB(pl("\"IsNotAvailable\"")), // Не доступен
-        crupStr(aioS(pl("\"UnitPriceMeasureUnit\""))), // цена за юнит
+        pn,
+        id,
+        aioDSh(p("\"Availability\"")), // доступность, разные небольшие числа, есть всегда // 2 AvailableSoon (Скоро будет доступно), 3 NoLongerAvailable (Больше недоступно), 0,NotForIndividualSale
+        aioD(p("\"ListPrice\"")), // основная цена, есть всегда
+        aioD(p("\"SalePrice\"")), // цена по скидке, бывает равна 0.0 если нет скидки
+        aioD(p("\"UnitPrice\"")), // цена за юнит, бывает равна 0.0 если нет юнита
+        aioB(p("\"IsNew\"")), // новинка
+        aioD(p("\"Rating\"")), // рейтинг
+        aioB(p("\"HasPromotion\"")), 
+        aioDI(p("\"RatingCount\"")), // количество проголосовавших в рейтинге
+        crupStr(aioS(p("\"Currency\""))), // валюта, есть всегда
+        aioB(p("\"IsOutOfStock\"")), // нет в наличии
+        aioB(p("\"IsNotAvailable\"")), // Не доступен
+        crupStr(aioS(p("\"UnitPriceMeasureUnit\""))), // цена за юнит
       ),
     )
   } yield prod
 
-  def productsCategories = for {
-    p <- products
-    pl = aioMs(p)
-    pn = crupStr(aioS(pl("\"ProfileNumber\"")))
-    id = aioDI(pl("\"Id\""))
 
-    cl = for {
-      c <- aioL(pl("\"Categories\""))
-      cm = aioMs(c)
-      cat = aioMs(cm("\"Dept\"")) match {
-        case null => aioMs(cm("\"PDept\"")) match {
-          case null => aioMs(cm("\"Level2\"")) match {
-            case null => log("warn", s"Невозможно определить категорию товара $id", true)
-            case ctl => (aioDI(ctl("\"CategoryType\"")), crupStr(aioS(ctl("\"Name\""))), 0)
-          }
-          case pd => aioDI(pd("\"CategoryType\"")) match {
-            case 1 => (1, aioDI(pd("\"Id\"")), toCapitalLetter(crupStr(aioS(pd("\"Name\"")))), aioDI(aioMs(cm("\"Level2\""))("\"Id\"")))
-            case ctpd => (ctpd, aioDI(pd("\"Id\"")), crupStr(aioS(pd("\"Name\""))), 0)
-          }
-        }
-        case d => aioDI(d("\"CategoryType\"")) match {
-          case 1 => (1, aioDI(d("\"Id\"")), toCapitalLetter(crupStr(aioS(d("\"Name\"")))), aioDI(aioMs(cm("\"PDept\""))("\"Id\"")))
-          case ctd => (ctd, aioDI(d("\"Id\"")), crupStr(aioS(d("\"Name\""))), 0)
-        }
-      }
-    } yield cat
-
-  } yield (pn, id, cl)
-
-  def productsVariants = for {
-    p <- products
-    pl = aioMs(p)
-    pn = crupStr(aioS(pl("\"ProfileNumber\""))) // есть всегда
-    id = aioDI(pl("\"Id\"")) // есть всегда
-
-    variant = aioL(pl("\"VariantGroups\"")) match {
-      case Nil => List()
-      case vg => for {
-        v <- vg
-        vl = aioL(aioMs(v)("\"Variants\""))
-        vr = for {
-          i <- vl
-          ai = aioMs(i)
-          vi = (
-            aioDSh(ai("\"Availability\"")), // доступность, разные небольшие числа, есть всегда
-            crupStr(aioS(ai("\"DisplayLineNumber\""))),
-            crupStr(aioS(ai("\"Name\""))).replaceAll("/", " / "),
-            crupStr(aioS(ai("\"Sku\""))),
-            crupStr(aioS(ai("\"Fsc\""))),
-            crupStr(aioS(ai("\"Type\""))),
-            crupStr(aioS(ai("\"Image\"")))
-          )
-        } yield (pn, id, vi)
-      } yield vr
-    } 
-  } yield variant
-
-
-  def productsPromotions(products: List[Any] = products, promotions: List[ProductsPromotionsT] = List()): List[ProductsPromotionsT] = products match {
-    case Nil => promotions
+  def productsList(section: String, products: List[Any] = products, res: ProductsListT = List()): ProductsListT = products match {
+    case Nil => res
     case h :: t => 
       val mProducts = aioMs(h)
-      val profileNumber = crupStr(aioS(mProducts("\"ProfileNumber\"")))
-      val id = aioD(mProducts("\"Id\"")) // есть всегда
-      aioL(mProducts("\"Promotions\"")) match {
-        case null => productsPromotions(t, promotions)
-        case p => 
-          val promotionsList = for {
-            i <- p
-            mI = aioMs(i)
-            res = (
-              profileNumber,
-              id,
-              crupStr(aioS(mI("\"Description\""))),
-              aioD(mI("\"Id\""))
-            )
-          } yield res
-          productsPromotions(t, promotions ::: promotionsList)
-    }
+      aioL(mProducts(s"\"$section\"")) match {
+        case Nil => productsList(section, t, res)
+        case null => productsList(section, t, res)
+        case d => 
+          val pn = crupStr(aioS(mProducts("\"ProfileNumber\"")))
+          val id = aioDI(mProducts("\"Id\""))
+          val resItem = d.map(x => (pn, id, aioMs(x)))
+          productsList(section, t, res ::: resItem)
+      }
   }
+
+
+  def productsPromotions = productsList("Promotions").map({ 
+    case (pn, id, x) => (pn, id, crupStr(aioS(x("\"Description\""))), aioDI(x("\"Id\""))) 
+    })
+
+  def productsCategories = productsList("Categories").map({
+    case (pn, id, x) => 
+
+      def levels(level1: String, level2: String) = {
+        val l = aioMs(x(s"\"$level1\""))
+        val ct = aioDSh(l("\"CategoryType\""))
+        (
+          pn, 
+          id, 
+          ct,
+          aioDI(l("\"Id\"")),
+          toCapitalLetter(crupStr(aioS(l("\"Name\"")))),
+          if (ct != 1 || level2 == "none") 0 else aioDI(aioMs(x(s"\"$level2\""))("\"Id\""))
+        )
+      }
+
+      x("\"Dept\"") match {
+        case null => x("\"PDept\"") match {
+          case null => x("\"Level2\"") match {
+            case null => (pn, id, 0, 0, "", 0)
+            case _ => levels("Level2", "none")
+          }
+          case _ => levels("PDept", "Level2")
+        }
+        case _ => levels("Dept", "PDept")
+      }
+  })
+
+  def productsVariants = productsList("VariantGroups").map({ 
+    case (pn, id, x) => aioL(x("\"Variants\"")).map({
+      case variants =>
+        val mVariants = aioMs(variants)
+        (
+          pn,
+          id,
+          aioDSh(mVariants("\"Availability\"")), // доступность, разные небольшие числа, есть всегда
+          crupStr(aioS(mVariants("\"DisplayLineNumber\""))),
+          crupStr(aioS(mVariants("\"Name\""))).replaceAll("/", " / "),
+          crupStr(aioS(mVariants("\"Sku\""))),
+          crupStr(aioS(mVariants("\"Fsc\""))),
+          crupStr(aioS(mVariants("\"Type\""))),
+          crupStr(aioS(mVariants("\"Image\"")))
+        )        
+    }) 
+  }).flatten
 
 }
