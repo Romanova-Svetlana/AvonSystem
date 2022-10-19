@@ -19,16 +19,19 @@ class AddToDB(url_type: String) {
           dp.productsPromotions
           dp.productsVariants
           dp.productsCategories
-          Success("true")
+          Success(true)
         case "promo" =>
           dp.promo
-          Success("true")
+          Success(true)
         case "products" => 
           dp.product
           dp.productV
-          Success("true")
+          Success(true)
+        case "promotions" => 
+          dp.promotions
+          Success(true)
         case _ => 
-          Success("false")
+          Success(false)
   		}
     } catch {
       case err : Throwable => Failure(err)

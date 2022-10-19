@@ -180,7 +180,7 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
     case x => 
       val mPromo = aioMs(x)
       (
-        crupStr(aioS(mPromo("\"Url\""))),
+        if (mPromo("\"Url\"") != null) true else false,
         crupStr(aioS(mPromo("\"PromotionId\""))).toInt,
         crupStr(aioS(mPromo("\"Name\""))),
         tagP(crupStr(aioS(mPromo("\"Headline\"")))),
@@ -188,5 +188,22 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
         crupStr(aioS(mPromo("\"Image\"")))
       )
   })
+
+  def promotions = if (all("\"ErrorMessage\"") == null) {
+    (
+      aioDI(data("\"PromotionId\"")),
+      crupStr(aioS(data("\"PromoFullDesc\""))),
+      aioDI(data("\"AwardProductId\"")),
+      aioL(data("\"BuyList\"")).map(x => aioDI(x)),
+      aioL(data("\"GetList\"")).map(x => aioDI(x)),
+      aioS(data("\"AttachedCustomer\"")),
+      aioD(data("\"ConditionMinAmount\"")),
+      aioDI(data("\"ConditionProductId\"")),
+      aioS(data("\"ConditionMaxQuantity\"")),
+      aioDSh(data("\"DeliveryType\"")),
+      aioDSh(data("\"PromotionListType\"")),
+      aioDSh(data("\"PromotionType\"")),
+    )
+  } else (0, "", 0, List(), List(), "", 0.0, 0, "", 0, 0, 0)
 
 }

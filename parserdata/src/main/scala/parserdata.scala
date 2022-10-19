@@ -27,6 +27,33 @@ object ParserData extends App {
       }
     }
 
+/*
+  def promotions = {
+
+    def toDB(data: List[String]) = new AddToDB("promotions").add(data.head) match {
+        case Success(msg) => log("info", s"OK")
+        case Failure(err) => log("warn", s"Не удалось распарсить данные", true, List(err))
+    }
+
+    openFile("/home/sw/projects/avonsystemdata/archive/2022-01-01/russia/promotions/10960.json") match {
+        case Success(data) => toDB(data); log("info", s"10960")
+        case Failure(err) => log("warn", s"Не удалось открыть файл 10960", true, List(err))
+    }
+    openFile("/home/sw/projects/avonsystemdata/archive/2022-01-01/russia/promotions/10969.json") match {
+        case Success(data) => toDB(data); log("info", s"10969")
+        case Failure(err) => log("warn", s"Не удалось открыть файл 10969", true, List(err))
+    }
+    openFile("/home/sw/projects/avonsystemdata/archive/2022-01-01/russia/promotions/10974.json") match {
+        case Success(data) => toDB(data); log("info", s"10974")
+        case Failure(err) => log("warn", s"Не удалось открыть файл 10974", true, List(err))
+    }
+    openFile("/home/sw/projects/avonsystemdata/archive/getdetails.json") match {
+        case Success(data) => toDB(data); log("info", s"getdetails")
+        case Failure(err) => log("warn", s"Не удалось открыть файл getdetails", true, List(err))
+    }
+  }
+*/
+
   // Daily data collection. Ежедневный сбор данных.
   def dailyParse(countries: List[(String, String)]) = {
     val dateStart = DateTime.dateNow
@@ -63,8 +90,11 @@ object ParserData extends App {
       }
 
       def toDB(data: List[String]) = new AddToDB(url_type).add(data.head) match {
-        case Success(msg) => log("info", s"$msg $date $country $language $url_type $id")
-        case Failure(err) => log("warn", s"Не удалось распарсить данные $date $country $language $url_type $id", true, List(err))
+        case Success(msg) => msg match {
+          case true => log("info", s"Парсинг данных файла $datePath$country/$language/$url_type/$id.json прошел успешно.")
+          case false => log("warn", s"Неизвестный формат данных файла $datePath$country/$language/$url_type/$id.json", true)
+        }
+        case Failure(err) => log("warn", s"Не удалось распарсить данные из файла $datePath$country/$language/$url_type/$id.json", true, List(err))
       }
     }
   }
