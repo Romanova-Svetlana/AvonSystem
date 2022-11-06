@@ -1,470 +1,1083 @@
-	// TABLE country
-	// country_id			Short 	-> Primary Key
-	// name	 					String
-	// name_en 				String
-	// code 					String
-	// url 						String
-	// parse_type 		Byte
-	// img_url 				String
-	// product_url 		String
-	// promotion_url 	String
-
-		// TABLE url_tmp
-	// url_tmp_id			Short 	-> Primary Key
-	// country_id			Short		-> url_tmp.country_id = country.country_id
-	// url_tmp.url 		String
-	// url_type 			String
-	// parse_type			Byte
-	// num						Int
-	// date_add				Date
-	// iteration 			Byte
-	// date_iteration	Date
-	// no_iteration		Boolean
-
-	// TABLE url
-	// url_id				Short 	-> Primary Key
-	// country_id		Short		-> country.country_id = url.country_id
-	// url.url 	String
-	// url_type 		String
-	// parse_type		Byte
-	// num					Int
-
-
--- СОЗДАНИЕ ТАБЛИЦ
-
-
-CREATE TABLE tmp_countries ( -- страны
-	countries_id smallserial,
+CREATE TABLE languages (
+	languages_id smallserial,
 	name varchar(255),
 	name_en varchar(255),
-	code varchar(255), -- код страны
-	PRIMARY KEY ("countries_id")
+	code varchar(5),
+	PRIMARY KEY ("languages_id")
 );
 
-CREATE TABLE tmp_countries_urls (
-	countries_urls_id smallserial,
-	countries_id smallint,
-	language varchar(4),
-	alternative_language boolean,
-	url varchar(255),
-	img_url(255),
-	product_url(255),
-	PRIMARY KEY ("countries_urls_id")
-);
+INSERT INTO languages VALUES (DEFAULT, 'Русский', 'Russian', 'ru');
+INSERT INTO languages VALUES (DEFAULT, 'English', 'English', 'en');
+INSERT INTO languages VALUES (DEFAULT, 'Español', 'Spanish', 'es');
+INSERT INTO languages VALUES (DEFAULT, 'Deutsch', 'Deutsch', 'de');
+INSERT INTO languages VALUES (DEFAULT, 'Italiana', 'Italian', 'it');
+INSERT INTO languages VALUES (DEFAULT, 'Português', 'Portuguese', 'pt');
+INSERT INTO languages VALUES (DEFAULT, 'Български', 'Bulgarian', 'bg');
+INSERT INTO languages VALUES (DEFAULT, 'Čeština', 'Czech', 'cs');
+INSERT INTO languages VALUES (DEFAULT, 'Eesti', 'Estonian', 'et');
+INSERT INTO languages VALUES (DEFAULT, 'Suomen', 'Finnish', 'fi');
+INSERT INTO languages VALUES (DEFAULT, 'ქართული', 'Georgian', 'ka');
+INSERT INTO languages VALUES (DEFAULT, 'Ελληνική', 'Greek', 'el');
+INSERT INTO languages VALUES (DEFAULT, 'Magyar', 'Hungarian', 'hu');
+INSERT INTO languages VALUES (DEFAULT, 'Lietuvių', 'Lithuanian', 'lt');
+INSERT INTO languages VALUES (DEFAULT, 'Latviski', 'Latvian', 'lv');
+INSERT INTO languages VALUES (DEFAULT, 'Polski', 'Polish', 'pl');
+INSERT INTO languages VALUES (DEFAULT, 'Română', 'Romanian', 'ro');
+INSERT INTO languages VALUES (DEFAULT, 'Српски', 'Serbian', 'sr');
+INSERT INTO languages VALUES (DEFAULT, 'Slovenský', 'Slovak', 'sk');
+INSERT INTO languages VALUES (DEFAULT, 'Türk', 'Turkish', 'tr');
+INSERT INTO languages VALUES (DEFAULT, 'Українська', 'Ukrainian', 'uk');
+INSERT INTO languages VALUES (DEFAULT, 'Қазақ', 'Kazakh', 'kk');
+INSERT INTO languages VALUES (DEFAULT, 'हिन्दी', 'Hindi', 'hi');
 
-ALTER TABLE "tmp_countries_urls" ADD CONSTRAINT "tmp_countries_urls_fk_countries_id" 
-FOREIGN KEY ("countries_id") REFERENCES "tmp_countries"("countries_id");
-
-CREATE TABLE tmp_categories (
-	categories_id serial,
-	country_id smallint,
-	name varchar(255),
-	namemobile varchar(255),
-	description varchar(255),
-	searchwords varchar(255),
-	slug varchar(255),
-	id int,
-	image varchar(255),
-	categorytype int,
-	active boolean,
-	imagewidth int,
-	parent_id int,
-	PRIMARY KEY ("categories_id")
-);
-
-ALTER TABLE "tmp_categories" ADD CONSTRAINT "tmp_categories_fk_countries_id" 
-FOREIGN KEY ("countries_id") REFERENCES "tmp_countries"("countries_id");
-
-CREATE TABLE tmp_products ( -- продукты
-	products_id serial,
-	countries_id smallint, -- внешний ключ
-	id int, -- main
-	productid int, -- main, products
-	name varchar(255), -- main, products
-	slug varchar(255), -- main, products
-	unitpricemeasureunit varchar(255), -- main, products
-	unitpricetext varchar(255), -- main, products
-	socialsharingdescription varchar(255), -- main, products
-	shortdescription varchar(255), -- main, products
-	istryitonproduct boolean, -- main, products
-	shortname varchar(255), -- main, products
-	conditional varchar(255), -- main, products
-	marketingLabel1 varchar(255), -- main, products
-	marketingLabel2 varchar(255), -- main, products
-	customization varchar(255), -- main, products
-	singlevariantfsc varchar(255), -- main, products
-	singlevariantsku varchar(255), -- main, products
-	containerinformation varchar(255), -- main, products
-	priceperunitinformation varchar(255), -- main, products
-	isconditional boolean(255), -- main, products
-	conditionalclass varchar(255), -- main, products
-	searchwords varchar(255), -- main, products
-	profilenumber varchar(255), -- main, products
-	hasactivevariant boolean, -- main, products
-	badgeid varchar(255), -- main, products
-	badgetext varchar(255), -- main, products
-	metatitle varchar(255), -- main, products
-	metadescription varchar(255), -- main, products
-	category varchar(255), -- main, products
-	brand varchar(255), -- main, products
-	isshadevariant boolean, -- main, products
-	issizevariant boolean, -- main, products
-	media varchar(2040), -- products
-	ingredients varchar(2040), -- products
-	description varchar(2040), -- products
-	shortdescription varchar(255), -- products
-	PRIMARY KEY ("products_id")
-);
-
-ALTER TABLE "tmp_products" ADD CONSTRAINT "tmp_products_fk_countries_id" 
-FOREIGN KEY ("countries_id") REFERENCES "tmp_countries"("countries_id");
-
-CREATE TABLE tmp_products_variants (
-	products_variants_id serial,
-	products_id int,
-	displaylinenumber varchar(255),
-	name varchar(255),
-	sku varchar(255),
-	fsc varchar(255),
-	type varchar(255),
-	colorhex varchar(255),
-	tryitonmakeupsku varchar(255),
-	PRIMARY KEY ("tmp_products_variants_id")
-);
-
-ALTER TABLE "tmp_products_variants" ADD CONSTRAINT "tmp_products_variants_fk_products_id" 
-FOREIGN KEY ("products_id") REFERENCES "tmp_products"("products_id");
-
-CREATE TABLE tmp_products_variants_everyday (
-	products_variants_everyday_id serial,
-	products_variants_id int,
-	availability int,
-	isavailable boolean,
-	availabilityreason varchar(255),
-	quantity int,
-	PRIMARY KEY ("tmp_products_variants_everyday_id")
-);
-
-ALTER TABLE "tmp_products_variants_everyday" ADD CONSTRAINT "tmp_products_variants_everyday_fk_products_variants_id" 
-FOREIGN KEY ("products_variants_id") REFERENCES "tmp_products_variants"("products_variants_id");
-
-CREATE TABLE tmp_products_everyday ( -- продукты каждый день
-	products_everyday_id serial,
-	products_id int,  -- внешний ключ
-	date date, 
-	availability int, -- main, products
-	listprice decimal, -- main, products
-	saleprice decimal, -- main, products
-	unitprice decimal, -- main, products
-	discountpriceformatted varchar(255), -- main, products
-	isnew boolean, -- main, products
-	isbestseller boolean, -- main, products
-	salecaption varchar(255), -- main, products
-	istryitonproduct boolean, -- main, products
-	conditional varchar(255), -- main, products
-	availabilityreason varchar(255), -- main, products
-	isonsale boolean, -- main, products
-	marketingLabel1 varchar(255), -- main, products
-	marketingLabel2 varchar(255), -- main, products
-	rating decimal, -- main, products
-	customization varchar(255), -- main, products
-	quantity int, -- main, products
-	promotions varchar(255), -- main, products
-	isconditional boolean(255), -- main, products
-	conditionalclass varchar(255), -- main, products
-	haspromotion boolean, -- main, products
-	deliverytype int, -- main, products
-	hasactivevariant boolean, -- main
-	ratingcount int, -- main, products
-	currency varchar(255), -- main, products
-	isoutofstock boolean, -- main, products
-	isnotavailable boolean, -- main, products
-	PRIMARY KEY ("products_everyday_id")
-);
-
-ALTER TABLE "tmp_products_everyday" ADD CONSTRAINT "tmp_products_everyday_fk_products_id" 
-FOREIGN KEY ("products_id") REFERENCES "tmp_products"("products_id");
-
-
-----
-
+/*
+ languages_id |    name    |  name_en   | code 
+--------------+------------+------------+------
+            1 | Русский    | Russian    | ru
+            2 | English    | English    | en
+            3 | Español    | Spanish    | es
+            4 | Deutsch    | Deutsch    | de
+            5 | Italiana   | Italian    | it
+            6 | Português  | Portuguese | pt
+            7 | Български  | Bulgarian  | bg
+            8 | Čeština    | Czech      | cs
+            9 | Eesti      | Estonian   | et
+           10 | Suomen     | Finnish    | fi
+           11 | ქართული    | Georgian   | ka
+           12 | Ελληνική   | Greek      | el
+           13 | Magyar     | Hungarian  | hu
+           14 | Lietuvių   | Lithuanian | lt
+           15 | Latviski   | Latvian    | lv
+           16 | Polski     | Polish     | pl
+           17 | Română     | Romanian   | ro
+           18 | Српски     | Serbian    | sr
+           19 | Slovenský  | Slovak     | sk
+           20 | Türk       | Turkish    | tr
+           21 | Українська | Ukrainian  | uk
+           22 | Қазақ      | Kazakh     | kk
+           23 | हिन्दी      | Hindi      | hi
+*/
 
 CREATE TABLE countries ( -- страны
 	countries_id smallserial,
-	name varchar(255),
-	name_en varchar(255),
+	dirname varchar(100),
 	code varchar(5), -- код страны
 	PRIMARY KEY ("countries_id")
 );
 
-INSERT INTO countries VALUES (DEFAULT, 'Россия', 'Russia', 'RU');
-INSERT INTO countries VALUES (DEFAULT, 'UK', 'UK', 'GB');
-INSERT INTO countries VALUES (DEFAULT, 'España', 'Spain', 'ES');
-INSERT INTO countries VALUES (DEFAULT, 'Deutschland', 'Germany', 'DE');
-INSERT INTO countries VALUES (DEFAULT, 'Italia', 'Italia', 'IT');
-INSERT INTO countries VALUES (DEFAULT, 'Portugal', 'Portugal', 'PT');
-INSERT INTO countries VALUES (DEFAULT, 'България', 'Bulgaria', 'BG');
-INSERT INTO countries VALUES (DEFAULT, 'Česká republika', 'Czech', 'CZ');
-INSERT INTO countries VALUES (DEFAULT, 'Eesti', 'Estonia', 'EE');
-INSERT INTO countries VALUES (DEFAULT, 'Suomi', 'Finland', 'FI');
-INSERT INTO countries VALUES (DEFAULT, 'საქართველოს', 'Georgia', 'GE');
-INSERT INTO countries VALUES (DEFAULT, 'Ελλάδα', 'Greece', 'GR');
-INSERT INTO countries VALUES (DEFAULT, 'Magyarország', 'Hungary', 'HU');
-INSERT INTO countries VALUES (DEFAULT, 'Lietuva', 'Lithuania', 'LT');
-INSERT INTO countries VALUES (DEFAULT, 'Latvija', 'Latvia', 'LV');
-INSERT INTO countries VALUES (DEFAULT, 'Polska', 'Poland', 'PL');
-INSERT INTO countries VALUES (DEFAULT, 'România', 'Romania', 'RO');
-INSERT INTO countries VALUES (DEFAULT, 'Srbija', 'Serbia', 'RS');
-INSERT INTO countries VALUES (DEFAULT, 'Slovensko', 'Slovakia', 'SK');
-INSERT INTO countries VALUES (DEFAULT, 'Türkiye', 'Turkey', 'TR');
-INSERT INTO countries VALUES (DEFAULT, 'Україна', 'Ukraine', 'UA');
-INSERT INTO countries VALUES (DEFAULT, 'Казахстан', 'Kazakhstan', 'KZ');
-INSERT INTO countries VALUES (DEFAULT, 'Chili', 'Chili', 'CL');
-INSERT INTO countries VALUES (DEFAULT, 'Ecuador', 'Ecuador', 'EC');
-INSERT INTO countries VALUES (DEFAULT, 'Perú', 'Peru', 'PE');
-INSERT INTO countries VALUES (DEFAULT, 'Colombia', 'Colombia', 'CO');
-INSERT INTO countries VALUES (DEFAULT, 'India', 'India', 'IN');
-INSERT INTO countries VALUES (DEFAULT, 'South Africa', 'South Africa', 'ZA');
+INSERT INTO countries VALUES (DEFAULT, 'russia', 'RU');
+INSERT INTO countries VALUES (DEFAULT, 'uk', 'GB');
+INSERT INTO countries VALUES (DEFAULT, 'spain', 'ES');
+INSERT INTO countries VALUES (DEFAULT, 'germany', 'DE');
+INSERT INTO countries VALUES (DEFAULT, 'italia', 'IT');
+INSERT INTO countries VALUES (DEFAULT, 'portugal', 'PT');
+INSERT INTO countries VALUES (DEFAULT, 'bulgaria', 'BG');
+INSERT INTO countries VALUES (DEFAULT, 'czech', 'CZ');
+INSERT INTO countries VALUES (DEFAULT, 'estonia', 'EE');
+INSERT INTO countries VALUES (DEFAULT, 'finland', 'FI');
+INSERT INTO countries VALUES (DEFAULT, 'georgia', 'GE');
+INSERT INTO countries VALUES (DEFAULT, 'greece', 'GR');
+INSERT INTO countries VALUES (DEFAULT, 'hungary', 'HU');
+INSERT INTO countries VALUES (DEFAULT, 'lithuania', 'LT');
+INSERT INTO countries VALUES (DEFAULT, 'latvia', 'LV');
+INSERT INTO countries VALUES (DEFAULT, 'poland', 'PL');
+INSERT INTO countries VALUES (DEFAULT, 'romania', 'RO');
+INSERT INTO countries VALUES (DEFAULT, 'serbia', 'RS');
+INSERT INTO countries VALUES (DEFAULT, 'slovakia', 'SK');
+INSERT INTO countries VALUES (DEFAULT, 'turkey', 'TR');
+INSERT INTO countries VALUES (DEFAULT, 'ukraine', 'UA');
+INSERT INTO countries VALUES (DEFAULT, 'kazakhstan', 'KZ');
+INSERT INTO countries VALUES (DEFAULT, 'chili', 'CL');
+INSERT INTO countries VALUES (DEFAULT, 'ecuador', 'EC');
+INSERT INTO countries VALUES (DEFAULT, 'peru', 'PE');
+INSERT INTO countries VALUES (DEFAULT, 'colombia', 'CO');
+INSERT INTO countries VALUES (DEFAULT, 'india', 'IN');
+INSERT INTO countries VALUES (DEFAULT, 'south_africa', 'ZA');
 
 /*
- countries_id |      name       |   name_en    | code 
---------------+-----------------+--------------+------
-            1 | Россия          | Russia       | RU
-            2 | UK              | UK           | GB
-            3 | España          | Spain        | ES
-            4 | Deutschland     | Germany      | DE
-            5 | Italia          | Italia       | IT
-            6 | Portugal        | Portugal     | PT
-            7 | България        | Bulgaria     | BG
-            8 | Česká republika | Czech        | CZ
-            9 | Eesti           | Estonia      | EE
-           10 | Suomi           | Finland      | FI
-           11 | საქართველოს     | Georgia      | GE
-           12 | Ελλάδα          | Greece       | GR
-           13 | Magyarország    | Hungary      | HU
-           14 | Lietuva         | Lithuania    | LT
-           15 | Latvija         | Latvia       | LV
-           16 | Polska          | Poland       | PL
-           17 | România         | Romania      | RO
-           18 | Srbija          | Serbia       | RS
-           19 | Slovensko       | Slovakia     | SK
-           20 | Türkiye         | Turkey       | TR
-           21 | Україна         | Ukraine      | UA
-           22 | Казахстан       | Kazakhstan   | KZ
-           23 | Chili           | Chili        | CL
-           24 | Ecuador         | Ecuador      | EC
-           25 | Perú            | Peru         | PE
-           26 | Colombia        | Colombia     | CO
-           27 | India           | India        | IN
-           28 | South Africa    | South Africa | ZA
+ countries_id |   dirname    | code 
+--------------+--------------+------
+            1 | russia       | RU
+            2 | uk           | GB
+            3 | spain        | ES
+            4 | germany      | DE
+            5 | italia       | IT
+            6 | portugal     | PT
+            7 | bulgaria     | BG
+            8 | czech        | CZ
+            9 | estonia      | EE
+           10 | finland      | FI
+           11 | georgia      | GE
+           12 | greece       | GR
+           13 | hungary      | HU
+           14 | lithuania    | LT
+           15 | latvia       | LV
+           16 | poland       | PL
+           17 | romania      | RO
+           18 | serbia       | RS
+           19 | slovakia     | SK
+           20 | turkey       | TR
+           21 | ukraine      | UA
+           22 | kazakhstan   | KZ
+           23 | chili        | CL
+           24 | ecuador      | EC
+           25 | peru         | PE
+           26 | colombia     | CO
+           27 | india        | IN
+           28 | south_africa | ZA
 */
+
+CREATE TABLE countries_languages (
+	countries_languages_id smallserial,
+	countries_id smallint,
+	languages_id smallint,
+	sort smallint,
+	PRIMARY KEY ("countries_languages_id")
+);
+
+ALTER TABLE countries_languages ADD CONSTRAINT countries_languages_fk_countries_id 
+FOREIGN KEY (countries_id) REFERENCES countries(countries_id);
+
+ALTER TABLE countries_languages ADD CONSTRAINT countries_languages_fk_languages_id 
+FOREIGN KEY (languages_id) REFERENCES languages(languages_id);
+
+INSERT INTO countries_languages VALUES (DEFAULT, 1, 1, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 2, 2, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 3, 3, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 4, 4, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 5, 5, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 6, 6, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 7, 7, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 8, 8, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 9, 9, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 10, 10, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 11, 11, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 12, 12, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 13, 13, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 14, 14, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 15, 15, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 16, 16, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 17, 17, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 18, 18, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 19, 19, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 20, 20, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 21, 21, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 22, 1, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 22, 22, 1);
+INSERT INTO countries_languages VALUES (DEFAULT, 23, 3, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 24, 3, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 25, 3, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 26, 3, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 27, 2, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 27, 23, 1);
+INSERT INTO countries_languages VALUES (DEFAULT, 28, 2, 0);
+
+/*
+select countries_languages_id, countries_id, dirname, languages_id, languages.code 
+FROM countries_languages INNER JOIN countries USING (countries_id) 
+INNER JOIN languages USING (languages_id);
+
+ countries_languages_id | countries_id |   dirname    | languages_id | code 
+------------------------+--------------+--------------+--------------+------
+                      1 |            1 | russia       |            1 | ru
+                      2 |            2 | uk           |            2 | en
+                      3 |            3 | spain        |            3 | es
+                      4 |            4 | germany      |            4 | de
+                      5 |            5 | italia       |            5 | it
+                      6 |            6 | portugal     |            6 | pt
+                      7 |            7 | bulgaria     |            7 | bg
+                      8 |            8 | czech        |            8 | cs
+                      9 |            9 | estonia      |            9 | et
+                     10 |           10 | finland      |           10 | fi
+                     11 |           11 | georgia      |           11 | ka
+                     12 |           12 | greece       |           12 | el
+                     13 |           13 | hungary      |           13 | hu
+                     14 |           14 | lithuania    |           14 | lt
+                     15 |           15 | latvia       |           15 | lv
+                     16 |           16 | poland       |           16 | pl
+                     17 |           17 | romania      |           17 | ro
+                     18 |           18 | serbia       |           18 | sr
+                     19 |           19 | slovakia     |           19 | sk
+                     20 |           20 | turkey       |           20 | tr
+                     21 |           21 | ukraine      |           21 | uk
+                     22 |           22 | kazakhstan   |            1 | ru
+                     23 |           22 | kazakhstan   |           22 | kk
+                     24 |           23 | chili        |            3 | es
+                     25 |           24 | ecuador      |            3 | es
+                     26 |           25 | peru         |            3 | es
+                     27 |           26 | colombia     |            3 | es
+                     28 |           27 | india        |            2 | en
+                     29 |           27 | india        |           23 | hi
+                     30 |           28 | south_africa |            2 | en
+*/
+
+CREATE TABLE countries_names (
+	countries_names_id smallserial,
+	name varchar(100),
+	countries_id smallint,
+	languages_id smallint,
+	PRIMARY KEY ("countries_names_id")
+);
+
+ALTER TABLE countries_names ADD CONSTRAINT countries_names_fk_countries_id 
+FOREIGN KEY (countries_id) REFERENCES countries(countries_id);
+
+ALTER TABLE countries_names ADD CONSTRAINT countries_names_fk_languages_id 
+FOREIGN KEY (languages_id) REFERENCES languages(languages_id);
+
+INSERT INTO countries_names VALUES (DEFAULT, 'Россия', 1, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Великобритания', 2, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Испания', 3, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Германия', 4, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Италия', 5, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Португалия', 6, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Болгария', 7, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чехия', 8, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Эстония', 9, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Финляндия', 10, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Грузия', 11, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Греция', 12, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Венгрия', 13, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Литва', 14, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Латвия', 15, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Польша', 16, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Румыния', 17, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Сербия', 18, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Словакия', 19, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Турция', 20, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Украина', 21, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Казахстан', 22, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чили', 23, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Эквадор', 24, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Перу', 25, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Колумбия', 26, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Индия', 27, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'ЮАР', 28, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'Russia', 1, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'UK', 2, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Spain', 3, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Germany', 4, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italia', 5, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugal', 6, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaria', 7, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Czech', 8, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonia', 9, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finland', 10, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Georgia', 11, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Greece', 12, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Hungary', 13, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lithuania', 14, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Latvia', 15, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Poland', 16, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Romania', 17, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovakia', 19, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Turkey', 20, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraine', 21, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazakhstan', 22, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chili', 23, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Colombia', 26, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'South Africa', 28, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rusia', 1, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gran Bretaña', 2, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'España', 3, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Alemania', 4, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italia', 5, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugal', 6, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaria', 7, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Checo', 8, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonia', 9, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finlandia', 10, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Georgia', 11, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grecia', 12, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Hungría', 13, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lituania', 14, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Letonia', 15, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polonia', 16, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumania', 17, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Eslovaquia', 19, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Pavo', 20, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ucrania', 21, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazajstán', 22, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Perú', 25, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Colombia', 26, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Sudáfrica', 28, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'Russland', 1, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Großbritannien', 2, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Spanien', 3, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Deutschland', 4, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italien', 5, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugal', 6, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgarien', 7, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Tschechische Republik', 8, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estland', 9, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finnland', 10, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Georgia', 11, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Griechenland', 12, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ungarn', 13, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Litauen', 14, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lettland', 15, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polen', 16, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumänien', 17, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbien', 18, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slowakei', 19, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Truthahn', 20, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraine', 21, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kasachstan', 22, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbien', 26, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Indien', 27, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Südafrika', 28, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'Russia', 1, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gran Bretagna', 2, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Spagna', 3, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Germania', 4, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italia', 5, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portogallo', 6, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaria', 7, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ceco', 8, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonia', 9, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finlandia', 10, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Georgia', 11, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grecia', 12, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ungheria', 13, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lituania', 14, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lettonia', 15, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polonia', 16, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Romania', 17, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovacchia', 19, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Tacchino', 20, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ucraina', 21, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazakistan', 22, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Perù', 25, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Colombia', 26, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Sud Africa', 28, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rússia', 1, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grã Bretanha', 2, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Espanha', 3, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Alemanha', 4, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Itália', 5, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugal', 6, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgária', 7, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Tcheco', 8, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estônia', 9, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finlândia', 10, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Geórgia', 11, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grécia', 12, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Hungria', 13, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lituânia', 14, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Letônia', 15, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polônia', 16, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Romênia', 17, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Sérvia', 18, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Eslováquia', 19, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 20, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ucrânia', 21, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Cazaquistão', 22, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Equador', 24, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Colômbia', 26, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Índia', 27, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'África do Sul', 28, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'Русия', 1, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Великобритания', 2, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Испания', 3, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Германия', 4, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Италия', 5, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Португалия', 6, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'България', 7, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чехия', 8, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Естония', 9, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Финландия', 10, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Грузия', 11, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Гърция', 12, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Унгария', 13, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Литва', 14, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Латвия', 15, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Полша', 16, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Румъния', 17, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Сърбия', 18, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Словакия', 19, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Турция', 20, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Украйна', 21, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Казахстан', 22, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чили', 23, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Еквадор', 24, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Перу', 25, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Колумбия', 26, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Индия', 27, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Южна Африка', 28, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rusko', 1, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Velká Británie', 2, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Španělsko', 3, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Německo', 4, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Itálie', 5, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugalsko', 6, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulharsko', 7, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Česká republika', 8, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonsko', 9, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finsko', 10, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gruzie', 11, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Řecko', 12, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Maďarsko', 13, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Litva', 14, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lotyšsko', 15, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polsko', 16, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumunsko', 17, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Srbsko', 18, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovensko', 19, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Krocan', 20, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukrajina', 21, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazachstán', 22, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ekvádor', 24, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbie', 26, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Indie', 27, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Jižní Afrika', 28, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'Venemaa', 1, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Suurbritannia', 2, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Hispaania', 3, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Saksamaa', 4, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Itaalia', 5, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugal', 6, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaaria', 7, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Tšehhi', 8, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Eesti', 9, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Soome', 10, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gruusia', 11, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kreeka', 12, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ungari', 13, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Leedu', 14, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Läti', 15, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Poola', 16, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumeenia', 17, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovakkia', 19, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Türgi', 20, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraina', 21, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kasahstan', 22, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Tšiili', 23, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peruu', 25, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbia', 26, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lõuna-Aafrika', 28, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'Venäjä', 1, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Iso-Britannia', 2, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Espanja', 3, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Saksa', 4, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italia', 5, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugali', 6, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaria', 7, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Tšekki', 8, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Viro', 9, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Suomi', 10, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Georgia', 11, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kreikka', 12, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Unkari', 13, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Liettua', 14, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Latvia', 15, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Puola', 16, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Romania', 17, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovakia', 19, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Turkki', 20, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraina', 21, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazakstan', 22, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbia', 26, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Intia', 27, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'Etelä-Afrikka', 28, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'რუსეთი', 1, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'დიდი ბრიტანეთის სამეფო', 2, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ესპანეთი', 3, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'გერმანია', 4, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'იტალია', 5, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'პორტუგალია', 6, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ბულგარეთი', 7, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ჩეხური', 8, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ესტონეთი', 9, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ფინეთი', 10, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'საქართველოს', 11, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'საბერძნეთი', 12, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'უნგრეთი', 13, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ლიტვა', 14, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ლატვია', 15, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'პოლონეთი', 16, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'რუმინეთი', 17, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'სერბეთი', 18, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'სლოვაკეთი', 19, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'თურქეთი', 20, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'უკრაინა', 21, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ყაზახეთი', 22, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ჩილე', 23, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ეკვადორი', 24, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'პერუს', 25, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'კოლუმბია', 26, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ინდოეთი', 27, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'სამხრეთ აფრიკის რესპუბლიკა', 28, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ρωσία', 1, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Μεγάλη Βρετανία', 2, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ισπανία', 3, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Γερμανία', 4, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ιταλία', 5, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Πορτογαλία', 6, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Βουλγαρία', 7, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Τσέχος', 8, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Εσθονία', 9, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Φινλανδία', 10, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Γεωργία', 11, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ελλάδα', 12, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ουγγαρία', 13, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Λιθουανία', 14, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Λετονία', 15, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Πολωνία', 16, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ρουμανία', 17, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Σερβία', 18, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Σλοβακία', 19, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Τουρκία', 20, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ουκρανία', 21, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Καζακστάν', 22, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Χιλή', 23, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Εκουαδόρ', 24, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Περού', 25, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Κολομβία', 26, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ινδία', 27, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Νότια Αφρική', 28, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'Oroszország', 1, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Nagy-Britannia', 2, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Spanyolország', 3, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Németország', 4, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Olaszország', 5, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugália', 6, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgária', 7, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Cseh', 8, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Észtország', 9, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finnország', 10, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grúzia', 11, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Görögország', 12, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Magyarország', 13, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Litvánia', 14, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lettország', 15, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lengyelország', 16, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Románia', 17, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Szerbia', 18, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Szlovákia', 19, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Pulyka', 20, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukrajna', 21, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazahsztán', 22, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Colombia', 26, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Dél-Afrika', 28, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rusija', 1, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Didžioji Britanija', 2, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ispanija', 3, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Vokietija', 4, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italija', 5, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugalija', 6, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgarija', 7, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Čekų', 8, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estija', 9, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Suomija', 10, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gruzija', 11, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Graikija', 12, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Vengrija', 13, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lietuva', 14, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Latvija', 15, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lenkija', 16, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumunija', 17, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbija', 18, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovakija', 19, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Turkija', 20, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraina', 21, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazachstanas', 22, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Čilė', 23, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ekvadoras', 24, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbija', 26, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Indija', 27, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Pietų Afrika', 28, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'Krievija', 1, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lielbritānija', 2, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Spānija', 3, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Vācija', 4, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Itālija', 5, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugāle', 6, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgārija', 7, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Čehu', 8, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Igaunija', 9, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Somija', 10, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gruzija', 11, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grieķija', 12, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ungārija', 13, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lietuva', 14, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Latvija', 15, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polija', 16, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumānija', 17, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbija', 18, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovākija', 19, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Turcija', 20, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraina', 21, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazahstāna', 22, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Čīle', 23, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ekvadora', 24, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbija', 26, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Indija', 27, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Dienvidāfrika', 28, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rosja', 1, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Wielka Brytania', 2, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Hiszpania', 3, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Niemcy', 4, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Włochy', 5, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugalia', 6, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bułgaria', 7, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Czech', 8, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonia', 9, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finlandia', 10, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gruzja', 11, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grecja', 12, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Węgry', 13, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Litwa', 14, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Łotwa', 15, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polska', 16, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumunia', 17, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Słowacja', 19, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Indyk', 20, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukraina', 21, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazachstan', 22, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ekwador', 24, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbia', 26, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Indie', 27, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Afryka Południowa', 28, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rusia', 1, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Marea Britanie', 2, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Spania', 3, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Germania', 4, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Italia', 5, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugalia', 6, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaria', 7, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ceh', 8, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonia', 9, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finlanda', 10, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Georgia', 11, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grecia', 12, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ungaria', 13, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lituania', 14, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Letonia', 15, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polonia', 16, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'România', 17, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Serbia', 18, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovacia', 19, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Curcan', 20, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ucraina', 21, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazahstan', 22, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Chile', 23, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ecuador', 24, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Columbia', 26, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Africa de Sud', 28, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'Русија', 1, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Велика Британија', 2, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Спаин', 3, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Немачка', 4, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Италија', 5, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Португал', 6, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Бугарска', 7, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чешка', 8, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Естониа', 9, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Финланд', 10, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Георгиа', 11, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Грчка', 12, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Мађарска', 13, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Литванија', 14, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Летонија', 15, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Пољска', 16, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Румунија', 17, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Србија', 18, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Словакиа', 19, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Турска', 20, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Украјина', 21, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Казахстан', 22, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чиле', 23, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Еквадор', 24, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Перу', 25, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Колумбија', 26, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Индија', 27, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Јужна Африка', 28, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rusko', 1, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Veľká Británia', 2, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Španielsko', 3, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Nemecko', 4, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Taliansko', 5, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portugalsko', 6, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulharsko', 7, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Česká', 8, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estónsko', 9, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Fínsko', 10, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gruzínsko', 11, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Grécko', 12, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Maďarsko', 13, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Litva', 14, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Lotyšsko', 15, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Poľsko', 16, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rumunsko', 17, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Srbsko', 18, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovensko', 19, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Turecko', 20, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukrajina', 21, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazachstan', 22, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Čile', 23, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ekvádor', 24, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolumbia', 26, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'India', 27, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Južná Afrika', 28, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'Rusya', 1, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Büyük Britanya', 2, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'İspanya', 3, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Almanya', 4, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'İtalya', 5, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Portekiz', 6, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Bulgaristan', 7, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Çek', 8, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Estonya', 9, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Finlandiya', 10, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Gürcistan', 11, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Yunanistan', 12, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Macaristan', 13, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Litvanya', 14, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Letonya', 15, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Polonya', 16, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Romanya', 17, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Sırbistan', 18, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Slovakya', 19, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Türkiye', 20, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ukrayna', 21, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kazakistan', 22, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Şili', 23, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ekvador', 24, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Peru', 25, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Kolombiya', 26, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Hindistan', 27, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Güney Afrika', 28, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'Росія', 1, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Велика Британія', 2, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Іспанія', 3, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Німеччина', 4, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Італія', 5, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Португалія', 6, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Болгарія', 7, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чехія', 8, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Естонія', 9, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Фінляндія', 10, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Грузія', 11, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Греція', 12, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Угорщина', 13, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Литва', 14, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Латвія', 15, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Польща', 16, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Румунія', 17, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Сербія', 18, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Словаччина', 19, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Туреччина', 20, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Україна', 21, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Казахстан', 22, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чилі', 23, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Еквадор', 24, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Перу', 25, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Колумбія', 26, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Індія', 27, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'ЮАР', 28, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ресей', 1, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Ұлыбритания', 2, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Испания', 3, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Германия', 4, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Италия', 5, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Португалия', 6, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Болгария', 7, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чех', 8, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Эстония', 9, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Финляндия', 10, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Грузия', 11, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Греция', 12, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Венгрия', 13, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Литва', 14, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Латвия', 15, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Польша', 16, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Румыния', 17, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Сербия', 18, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Словакия', 19, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Түйетауық', 20, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Украина', 21, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Қазақстан', 22, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Чили', 23, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Эквадор', 24, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Перу', 25, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Колумбия', 26, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Үндістан', 27, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'Оңтүстік Африка', 28, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'रूस', 1, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'ग्रेट ब्रिटेन', 2, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'स्पेन', 3, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'जर्मनी', 4, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'इटली', 5, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'पुर्तगाल', 6, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'बुल्गारिया', 7, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'चेक', 8, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'एस्टोनिया', 9, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'फिनलैंड', 10, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'जॉर्जिया', 11, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'यूनान', 12, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'हंगरी', 13, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'लिथुआनिया', 14, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'लातविया', 15, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'पोलैंड', 16, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'रोमानिया', 17, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'सर्बिया', 18, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'स्लोवाकिया', 19, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'टर्की', 20, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'यूक्रेन', 21, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'कजाकिस्तान', 22, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'चिली', 23, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'इक्वाडोर', 24, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'पेरू', 25, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'कोलंबिया', 26, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'भारत', 27, 23);
+INSERT INTO countries_names VALUES (DEFAULT, 'दक्षिण अफ्रीका', 28, 23);
 
 CREATE TABLE countries_urls (
 	countries_urls_id smallserial,
 	countries_id smallint,
-	language varchar(5),
-	alternative_language boolean,
+	languages_id smallint,
 	url varchar(255),
 	img_url varchar(255),
 	product_url varchar(255),
 	promotion_url varchar(255),
-	PRIMARY KEY ("countries_urls_id")
+	PRIMARY KEY (countries_urls_id)
 );
 
-ALTER TABLE "countries_urls" ADD CONSTRAINT "countries_urls_fk_countries_id" 
-FOREIGN KEY ("countries_id") REFERENCES "countries"("countries_id");
+ALTER TABLE countries_urls ADD CONSTRAINT countries_urls_fk_countries_id 
+FOREIGN KEY (countries_id) REFERENCES countries(countries_id);
+
+ALTER TABLE countries_urls ADD CONSTRAINT countries_urls_fk_languages_id 
+FOREIGN KEY (languages_id) REFERENCES languages(languages_id);
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 1, 'ru', false, 'https://my.avon.ru/', 
+	DEFAULT, 1, 1, 'https://my.avon.ru/', 
 	'https://emear-static.avon.com/assets/ru-ru/images/', 
 	'https://my.avon.ru/tovar/', 
 	'https://my.avon.ru/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 2, 'en', false, 'https://www.shopwithmyrep.co.uk/', 
+	DEFAULT, 2, 2, 'https://www.shopwithmyrep.co.uk/', 
 	'https://www.shopwithmyrep.co.uk//assets/en-gb/images/', 
 	'https://www.shopwithmyrep.co.uk/product/', 
 	'https://www.shopwithmyrep.co.uk//api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 3, 'es', false, 'https://www.avon.es/', 
+	DEFAULT, 3, 3, 'https://www.avon.es/', 
 	'https://www.avon.es/assets/es-es/images/', 
 	'https://www.avon.es/product/', 
 	'https://www.avon.es/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 4, 'de', false, 'https://www.avon.de/', 
+	DEFAULT, 4, 4, 'https://www.avon.de/', 
 	'https://www.avon.de/assets/de-de/images/', 
 	'https://www.avon.de/product/', 
 	'https://www.avon.de/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 5, 'it', false, 'https://www.avon.it/', 
+	DEFAULT, 5, 5, 'https://www.avon.it/', 
 	'https://www.avon.it/assets/it-it/images/', 
 	'https://www.avon.it/product/', 
 	'https://www.avon.it/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 6, 'pt', false, 'https://www.avon.com.pt/', 
+	DEFAULT, 6, 6, 'https://www.avon.com.pt/', 
 	'https://www.avon.com.pt/assets/pt-pt/images/', 
 	'https://www.avon.com.pt/product/', 
 	'https://www.avon.com.pt/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 7, 'bg', false, 'https://www.avon.bg/', 
+	DEFAULT, 7, 7, 'https://www.avon.bg/', 
 	'https://www.avon.bg/assets/bg-bg/images/', 
 	'https://www.avon.bg/prodykt/', 
 	'https://www.avon.bg/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 8, 'cs', false, 'https://www.avon.cz/', 
+	DEFAULT, 8, 8, 'https://www.avon.cz/', 
 	'https://www.avon.cz/assets/cs-cz/images/', 
 	'https://www.avon.cz/vyrobek/', 
 	'https://www.avon.cz/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 9, 'et', false, 'https://my.avon.ee/', 
+	DEFAULT, 9, 9, 'https://my.avon.ee/', 
 	'https://my.avon.ee/assets/et-ee/images/', 
 	'https://my.avon.ee/toode/', 
 	'https://my.avon.ee/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 10, 'fi', false, 'https://www.avon.fi/', 
+	DEFAULT, 10, 10, 'https://www.avon.fi/', 
 	'https://www.avon.fi/assets/fi-fi/images/', 
 	'https://www.avon.fi/tuote/', 
 	'https://www.avon.fi/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 11, 'ka', false, 'https://my.avon.ge/', 
+	DEFAULT, 11, 11, 'https://my.avon.ge/', 
 	'https://my.avon.ge/assets/ka-ge/images/', 
 	'https://my.avon.ge/product/', 
 	'https://my.avon.ge/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 12, 'el', false, 'https://www.avoncosmetics.gr/', 
+	DEFAULT, 12, 12, 'https://www.avoncosmetics.gr/', 
 	'https://www.avoncosmetics.gr/assets/el-gr/images/', 
 	'https://www.avoncosmetics.gr/product/', 
 	'https://www.avoncosmetics.gr/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 13, 'hu', false, 'https://avononline.avon.hu/', 
+	DEFAULT, 13, 13, 'https://avononline.avon.hu/', 
 	'https://avononline.avon.hu/assets/hu-hu/images/', 
 	'https://avononline.avon.hu/termek/', 
 	'https://avononline.avon.hu/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 14, 'lt', false, 'https://my.avon.lt/', 
+	DEFAULT, 14, 14, 'https://my.avon.lt/', 
 	'https://www.avon.lt/assets/lt-lt/images/', 
 	'https://www.avon.lt/gaminys/', 
 	'https://www.avon.lt/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 15, 'lv', false, 'https://my.avon.lv/', 
+	DEFAULT, 15, 15, 'https://my.avon.lv/', 
 	'https://my.avon.lv/assets/lv-lv/images/', 
 	'https://my.avon.lv/produkts/', 
 	'https://my.avon.lv/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 16, 'pl', false, 'https://www.avon.pl/', 
+	DEFAULT, 16, 16, 'https://www.avon.pl/', 
 	'https://www.avon.pl/assets/pl-pl/images/', 
 	'https://www.avon.pl/produkt/', 
 	'https://www.avon.pl/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 17, 'ro', false, 'https://www.avon.ro/', 
+	DEFAULT, 17, 17, 'https://www.avon.ro/', 
 	'https://www.avon.ro/assets/ro-ro/images/', 
 	'https://www.avon.ro/produs/', 
 	'https://www.avon.ro/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 18, 'sr', false, 'https://www.avon.rs/', 
+	DEFAULT, 18, 18, 'https://www.avon.rs/', 
 	'https://www.avon.rs/assets/sr-latn-rs/images/', 
 	'https://www.avon.rs/proizvod/', 
 	'https://www.avon.rs/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 19, 'sk', false, 'https://avononline.avon.sk/', 
+	DEFAULT, 19, 19, 'https://avononline.avon.sk/', 
 	'https://avononline.avon.sk/assets/sk-sk/images/', 
 	'https://avononline.avon.sk/vyrobok/', 
 	'https://avononline.avon.sk/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 20, 'tr', false, 'https://kozmetik.avon.com.tr/', 
+	DEFAULT, 20, 20, 'https://kozmetik.avon.com.tr/', 
 	'https://kozmetik.avon.com.tr/assets/tr-tr/images/', 
 	'https://kozmetik.avon.com.tr/urun/', 
 	'https://kozmetik.avon.com.tr/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 21, 'uk', false, 'https://my.avon.ua/', 
+	DEFAULT, 21, 21, 'https://my.avon.ua/', 
 	'https://my.avon.ua/assets/uk-ua/images/', 
 	'https://my.avon.ua/produkt/', 
 	'https://my.avon.ua/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 22, 'ru', false, 'https://my.kz.avon.com/', 
+	DEFAULT, 22, 1, 'https://my.kz.avon.com/', 
 	'https://my.kz.avon.com//assets/ru-kz/images/', 
 	'https://my.kz.avon.com/tovar/', 
 	'https://my.kz.avon.com/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 23, 'es', false, 'https://www.avon.cl/', 
+	DEFAULT, 23, 3, 'https://www.avon.cl/', 
 	'https://www.avon.cl/assets/es-cl/images/', 
 	'https://www.avon.cl/product/', 
 	''
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 24, 'es', false, 'https://www.avon.com.ec/', 
+	DEFAULT, 24, 3, 'https://www.avon.com.ec/', 
 	'https://www.avon.com.ec/assets/es-ec/images/', 
 	'https://www.avon.com.ec/product/', 
 	'https://www.avon.com.ec/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 25, 'es', false, 'https://www.avon.com.pe/', 
+	DEFAULT, 25, 3, 'https://www.avon.com.pe/', 
 	'https://www.avon.com.pe/assets/es-pe/images/', 
 	'https://www.avon.com.pe/product/', 
 	'https://www.avon.com.pe/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 26, 'es', false, 'https://www.avon.co/', 
+	DEFAULT, 26, 3, 'https://www.avon.co/', 
 	'https://www.avon.co/assets/es-co/images/', 
 	'https://www.avon.co/product/', 
 	'https://www.avon.co/api/specialoffersapi/getdetails?promotionId='
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 27, 'en', false, 'https://www.avon.co.in/', 
+	DEFAULT, 27, 2, 'https://www.avon.co.in/', 
 	'https://www.avon.co.in/assets/en-in/images/', 
 	'https://www.avon.co.in/product/', 
 	''
 );
 
 INSERT INTO countries_urls VALUES (
-	DEFAULT, 28, 'en', false, 'https://my.avon.co.za/', 
+	DEFAULT, 28, 2, 'https://my.avon.co.za/', 
 	'https://my.avon.co.za/assets/en-za/images/', 
 	'https://my.avon.co.za/product/', 
 	'https://my.avon.co.za/api/specialoffersapi/getdetails?promotionId='
@@ -501,6 +1114,10 @@ INSERT INTO countries_urls VALUES (
                 26 |           26 | es       | https://www.avon.co/
                 27 |           27 | en       | https://www.avon.co.in/
                 28 |           28 | en       | https://my.avon.co.za/
+SELECT dirname, languages.code, url_type, urls_id, countries_id, languages_id, id, urls.url FROM urls 
+INNER JOIN countries_urls USING (countries_urls_id) 
+INNER JOIN countries USING (countries_id) 
+INNER JOIN languages USING (languages_id);
 */
 
 CREATE TABLE urls (
@@ -512,8 +1129,8 @@ CREATE TABLE urls (
 	PRIMARY KEY ("urls_id")
 );
 
-ALTER TABLE "urls" ADD CONSTRAINT "urls_fk_countries_urls_id" 
-FOREIGN KEY ("countries_urls_id") REFERENCES "countries_urls"("countries_urls_id");
+ALTER TABLE urls ADD CONSTRAINT urls_fk_countries_urls_id 
+FOREIGN KEY (countries_urls_id) REFERENCES countries_urls(countries_urls_id);
 
 INSERT INTO urls VALUES (
 	DEFAULT, 1, 856, 
@@ -1979,26 +2596,18 @@ INSERT INTO urls VALUES (
 	'promo'
 );
 
+CREATE TABLE urls_items (
+	urls_items_id serial,
+	countries_urls_id smallint,
+	id int,
+	url varchar(255),
+	url_type varchar(255),
+	date_add date,
+	iteration smallint,
+	date_iteration date,
+	no_iteration boolean,
+	PRIMARY KEY ("urls_items_id")
+);
 
-
-
-
-
-
-
- url_id | country_id | num  |
- url
-  url_type | parse_type 
-
-
-
-url_tmp_id 
-country_id 
-num
-url                                        |  
-url_type
-parse_type
-date_add
-iteration
-date_iteration
-no_iteration 
+ALTER TABLE urls_items ADD CONSTRAINT urls_items_fk_countries_urls_id 
+FOREIGN KEY (countries_urls_id) REFERENCES countries_urls(countries_urls_id);
