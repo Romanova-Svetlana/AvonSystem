@@ -10,11 +10,11 @@ import LogUtil.log
 import DateTime.dateNow
 import Timeout.timeout
 
-class SaveDataFromUrl(dataDate: java.time.LocalDate) extends UrlT {
+class SaveDataFromUrl(dataDate: java.time.LocalDate) extends UrlsT {
 
   val startDate = dateNow
 
-  def openUrlSaveData(urlList: List[UrlT], errList: List[UrlT] = List()): Unit = {
+  def openUrlSaveData(urlList: List[UrlsT], errList: List[UrlsT] = List()): Unit = {
 
     urlList match {
 
@@ -32,8 +32,10 @@ class SaveDataFromUrl(dataDate: java.time.LocalDate) extends UrlT {
         }
 
       case h :: t => 
-        val (urls_id, url, url_type, id, country, language, country_id, udate) = h
-        val path = s"$archivePath$udate/$country/$language/$url_type/$id.json"
+//        val (urls_id, url, url_type, id, country, language, country_id, udate) = h
+        val (dirname, lang, url_type, urls_id, countries_urls_id, countries_id, languages_id, id, url, dateUrl, iteration, dateIteration, noIteration) = h
+
+        val path = s"$archivePath$dateUrl/$dirname/$lang/$url_type/$id.json"
 
         new File(path).exists match {
           case false => openSaveFile // Скачиваем данные, кладем в файл
@@ -47,12 +49,12 @@ class SaveDataFromUrl(dataDate: java.time.LocalDate) extends UrlT {
           timeout(1, 1)
           openUrl(url) match {
             case Success(data) => 
-              saveFile(s"$archivePath$udate/$country/$language/$url_type/$id.json", List(data)) match {
+              saveFile(s"$archivePath$dateUrl/$dirname/$lang/$url_type/$id.json", List(data)) match {
                 case Success(sf) => 
                   log("info", s"Данные из $url успешно сохранены в файл $sf")
                   openUrlSaveData(t, errList)
                 case Failure(err) => 
-                  log("warn", s"Не удалось сохранить данные из $url в файл $archivePath$udate/$country/$language/$url_type/$id.json", true, List(err))
+                  log("warn", s"Не удалось сохранить данные из $url в файл $archivePath$dateUrl/$dirname/$lang/$url_type/$id.json", true, List(err))
                   openUrlSaveData(t, h :: errList)
               }
             case Failure(err) => 
@@ -66,7 +68,10 @@ class SaveDataFromUrl(dataDate: java.time.LocalDate) extends UrlT {
     }
 
     def timeoutFinish = {
-      val list = (urlList ::: errList.reverse).map({ case (uid, u, ut, id, c, l, cid, d) => s"$uid $u $ut $id $c $l $cid $d" })
+      val list = (urlList ::: errList.reverse).map({ case 
+        (dirname, lang, url_type, urls_id, countries_urls_id, countries_id, languages_id, id, url, dateUrl, iteration, dateIteration, noIteration) => 
+          s"$dirname, $lang, $url_type, $urls_id, $countries_urls_id, $countries_id, $languages_id, $id, $url, $dateUrl, $iteration, $dateIteration, $noIteration" 
+        })
       log("WARN", s"Сбор данных завершен по таймауту. Список необработанных страниц в лог-файле.", true, list)
     }
 

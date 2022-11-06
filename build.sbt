@@ -17,7 +17,7 @@ lazy val utilities = (project in file("utilities"))
 lazy val parserdata = (project in file("parserdata"))
   .settings(
     name := "ParserData",
-    version := "1.11.0",
+    version := "1.11.1",
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.0.0",
     assembly / assemblyJarName := "parserdata.jar"
   ).dependsOn(utilities)

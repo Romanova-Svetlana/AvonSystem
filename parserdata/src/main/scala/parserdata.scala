@@ -2,12 +2,13 @@ package com.avonsystem.parserdata
 
 import scala.util.{Success, Failure}
 
+//import Urls
+//import UrlsT
 import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil}
 import FilesUtil.{createDir, openFile}
 import LogUtil.log
-import com.avonsystem.utilities.dbschema.{Countries, Urls}
 
-object ParserData extends App {
+object ParserData extends App with UrlsT {
 
   args match {
     case Array(date, _*) => 
@@ -18,12 +19,12 @@ object ParserData extends App {
           log("ERROR", "Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД.", true, List(err))
       }     
     case _ => // Daily data collection. Ежедневный сбор данных.
-      Countries.namesDir match {
+      Urls.sUrls match {
         case Nil => 
-          log("ERROR", "Ошибка получения списка стран. Работа программы прекращена.", true)
-        case c => 
+          log("ERROR", "Ошибка получения списка url. Работа программы прекращена.", true)
+        case u => 
           log("info", "Сбор данных и сохранение в файлы на диске.", true)
-          dailyParse(c)
+          dailyParse(u)
       }
     }
 
@@ -55,20 +56,21 @@ object ParserData extends App {
 */
 
   // Daily data collection. Ежедневный сбор данных.
-  def dailyParse(countries: List[(String, String)]) = {
+  def dailyParse(urls: List[UrlsT]) = {
     val dateStart = DateTime.dateNow
     val datePath = Setting.archivePath + dateStart + "/"
+    val countries = urls.map({case (dn, lang, a, b, c, d, e, f, g, k, m, o, v) => (dn, lang) }).distinct
 
     for (cd <- countries) {
-      val (name, lang) = cd
-      val dp = s"$datePath$name/$lang"
+      val (dn, lang) = cd
+      val dp = s"$datePath$dn/$lang"
       createDir(dp + "/main/") 
       createDir(dp + "/promo/")
       createDir(dp + "/promotions/")
       createDir(dp + "/products/")
     }
 
-    new SaveDataFromUrl(dateStart).openUrlSaveData(Urls.sUrls)
+    new SaveDataFromUrl(dateStart).openUrlSaveData(urls)
     // на этом месте будет скачивание файлов продуктов, промоакций, изображений
   }
 
@@ -77,24 +79,24 @@ object ParserData extends App {
     val datePath = Setting.archivePath + date + "/"
 
     for (i <- Urls.sUrls) {
-      val (urls_id, url, url_type, id, country, language, country_id, udate) = i
+      val (dirname, lang, url_type, urls_id, countries_urls_id, countries_id, languages_id, id, url, dateUrl, iteration, dateIteration, noIteration) = i
 
-      openFile(s"$datePath$country/$language/$url_type/$id.json") match {
+      openFile(s"$datePath$dirname/$lang/$url_type/$id.json") match {
         case Success(data) => toDB(data)
         case Failure(err) =>
-          openFile(s"$datePath$country/$url_type/$id.json") match {
+          openFile(s"$datePath$dirname/$url_type/$id.json") match {
             case Success(data) => toDB(data)
             case Failure(err) =>
-              log("WARN", s"Не удалось считать данные из файла за дату $date, $country $language $url_type $id", true, List(err))
+              log("WARN", s"Не удалось считать данные из файла за дату $date, $dirname $lang $url_type $id", true, List(err))
           }
       }
 
       def toDB(data: List[String]) = new AddToDB(url_type).add(data.head) match {
         case Success(msg) => msg match {
-          case true => log("info", s"Парсинг данных файла $datePath$country/$language/$url_type/$id.json прошел успешно.")
-          case false => log("warn", s"Неизвестный формат данных файла $datePath$country/$language/$url_type/$id.json", true)
+          case true => log("info", s"Парсинг данных файла $datePath$dirname/$lang/$url_type/$id.json прошел успешно.")
+          case false => log("warn", s"Неизвестный формат данных файла $datePath$dirname/$lang/$url_type/$id.json", true)
         }
-        case Failure(err) => log("warn", s"Не удалось распарсить данные из файла $datePath$country/$language/$url_type/$id.json", true, List(err))
+        case Failure(err) => log("warn", s"Не удалось распарсить данные из файла $datePath$dirname/$lang/$url_type/$id.json", true, List(err))
       }
     }
   }
