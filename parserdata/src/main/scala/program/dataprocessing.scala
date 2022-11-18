@@ -1,6 +1,5 @@
 package com.avonsystem.parserdata
 
-import scala.util.{Try, Success, Failure}
 import com.avonsystem.utilities.{AIO, TextFormat, LogUtil}
 import LogUtil.log
 
@@ -23,14 +22,14 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
   }
 
   def categoriesList(cat: List[(Map[String, Any], Int)] = categories, res: List[CategoryT] = List()): List[CategoryT] = cat match {
-    case Nil => res.reverse
+    case Nil => res
     case h :: t => 
       val (m, p) = h
       val id = aioDI(m("\"Id\""))
       val r: CategoryT = (
         id, 
-        crupStr(aioS(m("\"Name\""))), 
-        crupStr(aioS(m("\"SearchWords\""))), 
+        replaceSql((crupStr(aioS(m("\"Name\""))))), 
+        replaceSql((crupStr(aioS(m("\"SearchWords\""))))), 
         p
       )
       aioL(m("\"Children\"")) match {

@@ -91,10 +91,11 @@ object ParserData extends App with UrlsT {
           }
       }
 
-      def toDB(data: List[String]) = new AddToDB(url_type).add(data.head) match {
+      def toDB(data: List[String]) = new AddToDB(url_type, countries_id, languages_id).add(data.head) match {
         case Success(msg) => msg match {
-          case true => log("info", s"Парсинг данных файла $datePath$dirname/$lang/$url_type/$id.json прошел успешно.")
-          case false => log("warn", s"Неизвестный формат данных файла $datePath$dirname/$lang/$url_type/$id.json", true)
+          case 1 => log("info", s"Парсинг данных файла $datePath$dirname/$lang/$url_type/$id.json прошел успешно. Данные в базе обновлены.")
+          case 0 => log("info", s"Парсинг данных файла $datePath$dirname/$lang/$url_type/$id.json прошел успешно. Данных для обновления не обнаружено.")
+          case _ => log("warn", s"Неизвестный формат данных файла $datePath$dirname/$lang/$url_type/$id.json", true)
         }
         case Failure(err) => log("warn", s"Не удалось распарсить данные из файла $datePath$dirname/$lang/$url_type/$id.json", true, List(err))
       }

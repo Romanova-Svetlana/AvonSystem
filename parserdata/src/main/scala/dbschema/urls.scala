@@ -17,7 +17,7 @@ object Urls {
         INNER JOIN languages USING (languages_id);
   	"""
   	select(sql) match {
-  		case Success(urls) => urls.map(col => {
+  		case Success(res) => res.map(col => {
         (
           col.getString("dirname"),
           col.getString("code"),
@@ -39,31 +39,4 @@ object Urls {
   			List()
   	}
   }
-
-/*  	
-    select(s"SELECT urls_id, urls.url, url_type, id, name_en, language, countries_urls_id FROM urls INNER JOIN countries_urls USING (countries_urls_id) INNER JOIN countries USING (countries_id);") match {
-      case Success(urls) => urls.map(col => {
-        (
-          col.getInt("urls_id"),
-          col.getString("url"),
-          col.getString("url_type"),
-          col.getInt("id"),
-          col.getString("name_en").toLowerCase.replaceAll(" ", "_"),
-          col.getString("language"),
-          col.getShort("countries_urls_id"),
-          DateTime.dateNow,
-
-        )
-      }).toList.map({ case (uid, u, ut, id, c, l, cuid) => (uid, u, ut, id, c, l, cuid, DateTime.dateNow.toString) })
-      case Failure(err) => 
-        log("warn", "Не удалось получить список основных страниц сайтов.", true, List(err))
-        List()
-    }
-  }
-*/
-
 }
-
-/*
-
-*/
