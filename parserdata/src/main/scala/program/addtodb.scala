@@ -14,15 +14,19 @@ class AddToDB(url_type: String, countries_id: Short, languages_id: Short) {
 
   		url_type match {
   			case "main" => 
-//            ${dbu.brandsSQL(dp.brands())} 
-          val sql = s"""
-            ${dbu.categoriesSQL(dp.categoriesList())}
-          """
-          dp.productsCard
-          dp.productsPromotions
-          dp.productsVariants
-          dp.productsCategories
+          val categories = dp.categoriesList()
+//            dbu.categoriesSQL(categories)
+          val sql = dbu.categoriesParentSQL(categories)
+
+
+//            ${dbu.productsSQL(dp.productsCards, dp.productsPromotions, dp.productsVariants, dp.productsCategories)}
+          
+//          dp.productsPromotions
+//          dp.productsVariants
+//          dp.productsCategories
 //          println(sql)
+//          println(dbu.categoriesParentSQL(categories))
+          println(sql)
           update(sql)
 //          Success(0)
         case "promo" =>

@@ -23,14 +23,13 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
 
   def categoriesList(cat: List[(Map[String, Any], Int)] = categories, res: List[CategoryT] = List()): List[CategoryT] = cat match {
     case Nil => res
-    case h :: t => 
-      val (m, p) = h
+    case (m, parent_id) :: t => 
       val id = aioDI(m("\"Id\""))
       val r: CategoryT = (
         id, 
-        replaceSql((crupStr(aioS(m("\"Name\""))))), 
-        replaceSql((crupStr(aioS(m("\"SearchWords\""))))), 
-        p
+        crupStr(aioS(m("\"Name\""))), 
+        crupStr(aioS(m("\"SearchWords\""))), 
+        parent_id
       )
       aioL(m("\"Children\"")) match {
         case Nil => categoriesList(t, r :: res)
@@ -38,42 +37,39 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
       }
   }
 
-  def productsCard = for {
+  def productsCards = for {
     p <- products
-    pn = crupStr(aioS(p("\"ProfileNumber\""))) // есть всегда
     id = aioDI(p("\"Id\"")) // есть всегда
+    pn = crupStr(aioS(p("\"ProfileNumber\""))) // есть всегда
     prod = (
+      id,
+      pn,
       (
-        pn,
-        id,
+        crupStr(aioS(p("\"PricePerUnitInformation\""))).toLowerCase, // ml, piece(s), grams (south_africa), N, gm, g (india), Und, PAIR (colombia)
+        crupStr(aioS(p("\"UnitPriceMeasureUnit\""))).toLowerCase // количество в юните
+      ),
+      (
         aioDI(p("\"ProductId\"")), 
         crupStr(aioS(p("\"SingleVariantFsc\""))),
         crupStr(aioS(p("\"SingleVariantSku\""))),
-        aioB(p("\"IsShadeVariant\"")),
-        aioB(p("\"IsSizeVariant\"")), 
-        crupStr(aioS(p("\"Name\""))), // Название
-        crupStr(aioS(p("\"SocialSharingDescription\""))), // Краткое описание, включает в себя HTML-теги
-        crupStr(aioS(p("\"SearchWords\""))), // поисковые слова, есть не везде
-        toCapitalLetter(crupStr(aioS(p("\"Brand\"")))),
-        crupStr(aioS(p("\"UnitPriceText\""))).toLowerCase, // мера измерения граммы и мл 
-        crupStr(aioS(p("\"PricePerUnitInformation\""))).toLowerCase // ml, piece(s), grams (south_africa), N, gm, g (india), Und, PAIR (colombia)
+        replaceSql(crupStr(aioS(p("\"Name\"")))), // Название
+        crupStr(aioS(p("\"Slug\""))),
+        replaceSql(crupStr(aioS(p("\"SocialSharingDescription\"")))), // Краткое описание, включает в себя HTML-теги
+        replaceSql(crupStr(aioS(p("\"SearchWords\"")))), // поисковые слова, есть не везде
       ),
       (
-        pn,
-        id,
         aioDSh(p("\"Availability\"")), // доступность, разные небольшие числа, есть всегда // 2 AvailableSoon (Скоро будет доступно), 3 NoLongerAvailable (Больше недоступно), 0,NotForIndividualSale
         aioD(p("\"ListPrice\"")), // основная цена, есть всегда
         aioD(p("\"SalePrice\"")), // цена по скидке, бывает равна 0.0 если нет скидки
         aioD(p("\"UnitPrice\"")), // цена за юнит, бывает равна 0.0 если нет юнита
         aioB(p("\"IsNew\"")), // новинка
-        aioD(p("\"Rating\"")), // рейтинг
         aioB(p("\"HasPromotion\"")), 
+        aioD(p("\"Rating\"")), // рейтинг
         aioDI(p("\"RatingCount\"")), // количество проголосовавших в рейтинге
-        crupStr(aioS(p("\"Currency\""))), // валюта, есть всегда
         aioB(p("\"IsOutOfStock\"")), // нет в наличии
         aioB(p("\"IsNotAvailable\"")), // Не доступен
-        crupStr(aioS(p("\"UnitPriceMeasureUnit\""))), // цена за юнит
       ),
+        crupStr(aioS(p("\"Currency\""))) // валюта, есть всегда
     )
   } yield prod
 
@@ -86,9 +82,9 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
         case Nil => productsList(section, t, res)
         case null => productsList(section, t, res)
         case d => 
-          val pn = crupStr(aioS(mProducts("\"ProfileNumber\"")))
+          val profileNumber = crupStr(aioS(mProducts("\"ProfileNumber\"")))
           val id = aioDI(mProducts("\"Id\""))
-          val resItem = d.map(x => (pn, id, aioMs(x)))
+          val resItem = d.map(x => (profileNumber, id, aioMs(x)))
           productsList(section, t, res ::: resItem)
       }
   }
@@ -189,20 +185,22 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
   })
 
   def promotions = if (all("\"ErrorMessage\"") == null) {
-    (
-      aioDI(data("\"PromotionId\"")),
-      crupStr(aioS(data("\"PromoFullDesc\""))),
-      aioDI(data("\"AwardProductId\"")),
-      aioL(data("\"BuyList\"")).map(x => aioDI(x)),
-      aioL(data("\"GetList\"")).map(x => aioDI(x)),
-      aioS(data("\"AttachedCustomer\"")),
-      aioD(data("\"ConditionMinAmount\"")),
-      aioDI(data("\"ConditionProductId\"")),
-      aioS(data("\"ConditionMaxQuantity\"")),
-      aioDSh(data("\"DeliveryType\"")),
-      aioDSh(data("\"PromotionListType\"")),
-      aioDSh(data("\"PromotionType\"")),
+    Some(
+      (
+        aioDI(data("\"PromotionId\"")),
+        crupStr(aioS(data("\"PromoFullDesc\""))),
+        aioDI(data("\"AwardProductId\"")),
+        aioL(data("\"BuyList\"")).map(x => aioDI(x)),
+        aioL(data("\"GetList\"")).map(x => aioDI(x)),
+        aioS(data("\"AttachedCustomer\"")),
+        aioD(data("\"ConditionMinAmount\"")),
+        aioDI(data("\"ConditionProductId\"")),
+        aioS(data("\"ConditionMaxQuantity\"")),
+        aioDSh(data("\"DeliveryType\"")),
+        aioDSh(data("\"PromotionListType\"")),
+        aioDSh(data("\"PromotionType\"")),
+      )
     )
-  } else (0, "", 0, List(), List(), "", 0.0, 0, "", 0, 0, 0)
+  } else None
 
 }
