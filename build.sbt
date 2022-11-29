@@ -4,7 +4,7 @@ ThisBuild / organization := "com.avonsystem"
 lazy val avonsystem = (project in file("."))
   .settings(
     name := "AvonSystem",
-    version := "0.1.2"
+    version := "0.1.3"
   )
 
 lazy val utilities = (project in file("utilities"))
