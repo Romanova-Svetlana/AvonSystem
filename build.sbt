@@ -10,7 +10,7 @@ lazy val avonsystem = (project in file("."))
 lazy val utilities = (project in file("utilities"))
   .settings(
     name := "Utilities",
-    version := "1.7.1",
+    version := "1.7.2",
     libraryDependencies += "org.postgresql" % "postgresql" % "42.3.3"
   )
 

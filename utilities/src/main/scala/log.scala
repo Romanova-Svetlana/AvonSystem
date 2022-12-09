@@ -1,9 +1,8 @@
 package com.avonsystem.utilities
 
-import com.avonsystem.utilities.Setting.logPath
-import com.avonsystem.utilities.FilesUtil.saveFile
+import DateTime.{dateNow, timeNow, dateToInt, timeToInt}
 
-object LogUtil {
+object LogUtil extends AIO {
   def dateTimeNow = java.util.Calendar.getInstance().getTime().toString
 
   def log(res: String, msg: String, file: Boolean = false, err: List[Any] = List()) = {
@@ -11,8 +10,21 @@ object LogUtil {
     for (e <- err) println(s"[$res] $e")
     if (file == true) {
       val m = msg.take(50)
-      val logFile = logPath + s"[$res] $m.txt"
-      saveFile(logFile, List(s"[$res] $msg", dateTimeNow) ::: err)
+      val logFile = Setting.logPath + s"[$res] $m.txt"
+      FilesUtil.saveFile(logFile, List(s"[$res] $msg", dateTimeNow) ::: err)
     }
+  }
+
+  def logdb(res: Byte, msg: String, file: String, err: List[Any]) = {
+    val e = aioLs(err).mkString("\n")
+    val r = res match {
+      case 2 => "warn"
+      case 3 => "error"
+      case _ => "info"
+    }
+    DbConn.update(s"INSERT INTO logs VALUES (DEFAULT, $res, '$msg', '$file', '$e', ${dateToInt(dateNow)}, ${timeToInt(timeNow)});")
+    println(s"[$r] $msg")
+    println(file)
+    println(e)
   }
 }
