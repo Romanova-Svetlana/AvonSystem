@@ -62,15 +62,16 @@ object FilesUtil {
     }
   }
 
-  def openUrlsaveBinaryFile(uri: String, fileName: String) = try {
-    import scala.language.postfixOps
-    import sys.process._
-    new java.net.URL(uri) #> new File(fileName) !! ;
-    Success(uri)
+  def openUrlsaveBinaryFile(uri: String, path: String, name: String) = try {
+    val filePath = s"$path$name.${uri.split("\\.").last}" 
+    if (new File(s"$filePath").exists == false) {
+      import scala.language.postfixOps
+      import sys.process._
+      new java.net.URL(uri) #> new File(s"$filePath") !! ;
+      Success(Some(s"$filePath"))
+    } else Success(None)
   } catch {
-      case err : Throwable => { 
-        Failure(err)
-      }
+      case err : Throwable => Failure(err)
   }
 
     
