@@ -20,7 +20,13 @@ object DateTime {
   // прибавляет или вычитает дни из даты
   def datePlus(date: java.time.LocalDate, days: Int) = date.plusDays(days)
 
-  def dateToInt(date: java.time.LocalDate) = date.toString.replaceAll("-", "").toInt
-  def timeToInt(time: java.time.LocalTime) = time.toString.replaceAll("[:\\.]", "").toInt
+  // конвертация даты и времени в целочисленные типы и обратно в строковые
+  def dateTimeToLong(datetime: String) = datetime.replaceAll("[-:\\.]", "").toLong
+  def dateToInt(date: String) = date.replaceAll("-", "").toInt
+
+  def intToDate(num: Int) = {
+    val s = num.toString
+    s"${s(0)}${s(1)}${s(2)}${s(3)}-${s(4)}${s(5)}-${s(6)}${s(7)}"
+  }
 
 }

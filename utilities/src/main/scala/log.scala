@@ -1,6 +1,6 @@
 package com.avonsystem.utilities
 
-import DateTime.{dateNow, timeNow, dateToInt, timeToInt}
+import DateTime.{dateNow, timeNow, dateTimeToLong}
 
 object LogUtil extends AIO {
   def dateTimeNow = java.util.Calendar.getInstance().getTime().toString
@@ -15,14 +15,14 @@ object LogUtil extends AIO {
     }
   }
 
-  def logdb(res: Byte, msg: String, file: String, err: List[Any]) = {
+  def logdb(res: Byte, msg: String, file: String, err: List[Any] = List()) = {
     val e = aioLs(err).mkString("\n")
     val r = res match {
       case 2 => "warn"
       case 3 => "error"
       case _ => "info"
     }
-    DbConn.update(s"INSERT INTO logs VALUES (DEFAULT, $res, '$msg', '$file', '$e', ${dateToInt(dateNow)}, ${timeToInt(timeNow)});")
+    DbConn.update(s"INSERT INTO logs VALUES (DEFAULT, $res, '$msg', '$file', '$e', ${dateTimeToLong(s"$dateNow$timeNow")});")
     println(s"[$r] $msg")
     println(file)
     println(e)
