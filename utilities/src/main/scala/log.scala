@@ -20,6 +20,7 @@ object LogUtil extends AIO {
     val r = res match {
       case 2 => "warn"
       case 3 => "error"
+      case 4 => "success"
       case _ => "info"
     }
     DbConn.update(s"INSERT INTO logs VALUES (DEFAULT, $res, '$msg', '$file', '$e', ${dateTimeToLong(s"$dateNow$timeNow")});")

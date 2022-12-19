@@ -6,13 +6,14 @@ trait UrlT {
 }
 
 trait UrlsT {
-	type UrlsT = (String, String, String, Int, Short, Short, Short, Int, String, java.time.LocalDate, Short, java.time.LocalDate, Boolean)
+	type UrlsT = (String, String, String, Short, Int, Short, Short, Int, String, java.time.LocalDate, Short, java.time.LocalDate, Boolean)
 }
 
 trait ParseT {
 	type CategoryT = (Int, String, String, Int)
-	type ProductsT = (Int, String, (Int, String, String, Boolean, Boolean, String, String, String, String), (String, String), (Int, Double, Double, Double, Boolean, Double, Boolean, Int, Boolean, Boolean, String), String)
+	type ProductT = (String, Int, (String, String), (Int, String, String, String, String, String, String), (Short, Double, Double, Double, Boolean, Boolean, Double, Int, Boolean, Boolean), String)
 	type ProductsListT = List[(String, Int, Map[String, Any])]
 	type ProductsPromotionsT = (String, Int, String, Double)
+	type PromoT = (Boolean, Int, String, String, String, String)
 }
 

@@ -4,39 +4,40 @@ import java.sql.ResultSet
 import scala.util.{Success, Failure}
 
 import com.avonsystem.utilities.{ LogUtil, DbConn, DateTime }
-import LogUtil.log
+import DateTime.dateNow
+import LogUtil.logdb
 import DbConn.select
 
 object Urls {
 
   def sUrls = {
     val sql = s"""
-      SELECT dirname, languages.code, url_type, urls_id, countries_urls_id, countries_id, languages_id, id, urls.url FROM urls 
-        INNER JOIN countries_urls USING (countries_urls_id) 
-        INNER JOIN countries USING (countries_id) 
-        INNER JOIN languages USING (languages_id);
+      SELECT c.dirname, l.code, u.url_type, u.parse_type, u.urls_id, u.countries_id, u.languages_id, u.id, u.url, u.no_iteration FROM urls AS u
+        INNER JOIN countries AS c USING (countries_id)
+        INNER JOIN languages AS l USING (languages_id);
   	"""
   	select(sql) match {
-  		case Success(res) => res.map(col => {
+  		case Success(res) => Some(res.map(col => {
         (
           col.getString("dirname"),
           col.getString("code"),
           col.getString("url_type"),
+          col.getShort("parse_type"),
           col.getInt("urls_id"),
-          col.getShort("countries_urls_id"),
           col.getShort("countries_id"),
           col.getShort("languages_id"),
           col.getInt("id"),
           col.getString("url"),
-          DateTime.dateNow,
+          dateNow,
           1.toShort,
-          DateTime.dateNow,
-          true
+          dateNow,
+          col.getBoolean("no_iteration")
         )
-  		}).toList
+  		}).toList)
   		case Failure(err) => 
-  			log("warn", "Не удалось получить список основных url для парсинга.", true, List(err))
-  			List()
+        logdb(2, "Не удалось получить данные из таблицы urls.", "urls.scala sUrls", List(err))
+  			None
   	}
   }
+
 }
