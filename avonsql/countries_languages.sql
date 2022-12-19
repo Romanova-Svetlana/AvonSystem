@@ -49,6 +49,7 @@ INNER JOIN languages USING (languages_id);
                      28 |           27 | india        |            2 | en
                      29 |           27 | india        |           23 | hi
                      30 |           28 | south_africa |            2 | en
+                     31 |           29 | usa          |            2 | en
 */
 
 INSERT INTO countries_languages VALUES (DEFAULT, 1, 1, 0);
@@ -81,3 +82,4 @@ INSERT INTO countries_languages VALUES (DEFAULT, 26, 3, 0);
 INSERT INTO countries_languages VALUES (DEFAULT, 27, 2, 0);
 INSERT INTO countries_languages VALUES (DEFAULT, 27, 23, 1);
 INSERT INTO countries_languages VALUES (DEFAULT, 28, 2, 0);
+INSERT INTO countries_languages VALUES (DEFAULT, 29, 2, 0);

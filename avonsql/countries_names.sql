@@ -657,3 +657,27 @@ INSERT INTO countries_names VALUES (DEFAULT, 'कोलंबिया', 26, 23)
 INSERT INTO countries_names VALUES (DEFAULT, 'भारत', 27, 23);
 INSERT INTO countries_names VALUES (DEFAULT, 'दक्षिण अफ्रीका', 28, 23);
 
+INSERT INTO countries_names VALUES (DEFAULT, 'США', 29, 1);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 2);
+INSERT INTO countries_names VALUES (DEFAULT, 'EE.UU', 29, 3);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 4);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 5);
+INSERT INTO countries_names VALUES (DEFAULT, 'EUA', 29, 6);
+INSERT INTO countries_names VALUES (DEFAULT, 'САЩ', 29, 7);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 8);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 9);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 10);
+INSERT INTO countries_names VALUES (DEFAULT, 'აშშ', 29, 11);
+INSERT INTO countries_names VALUES (DEFAULT, 'ΗΠΑ', 29, 12);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 13);
+INSERT INTO countries_names VALUES (DEFAULT, 'JAV', 29, 14);
+INSERT INTO countries_names VALUES (DEFAULT, 'ASV', 29, 15);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 16);
+INSERT INTO countries_names VALUES (DEFAULT, 'SUA', 29, 17);
+INSERT INTO countries_names VALUES (DEFAULT, 'САД', 29, 18);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 19);
+INSERT INTO countries_names VALUES (DEFAULT, 'USA', 29, 20);
+INSERT INTO countries_names VALUES (DEFAULT, 'США', 29, 21);
+INSERT INTO countries_names VALUES (DEFAULT, 'АҚШ', 29, 22);
+INSERT INTO countries_names VALUES (DEFAULT, 'अमेरीका', 29, 23);
+

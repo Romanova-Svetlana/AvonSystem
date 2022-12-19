@@ -4,7 +4,6 @@ CREATE TABLE logs (
 	message varchar(255),
 	file varchar(255),
 	error varchar(1000),
-	dates int,
-	times int,
+	date_time bigint,
 	PRIMARY KEY (logs_id)
 );

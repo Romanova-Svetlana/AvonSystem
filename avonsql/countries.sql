@@ -36,6 +36,7 @@ CREATE TABLE countries ( -- страны
            26 | colombia     | CO
            27 | india        | IN
            28 | south_africa | ZA
+           29 | usa          | US   
 */
 
 INSERT INTO countries VALUES (DEFAULT, 'russia', 'RU');
@@ -66,4 +67,4 @@ INSERT INTO countries VALUES (DEFAULT, 'peru', 'PE');
 INSERT INTO countries VALUES (DEFAULT, 'colombia', 'CO');
 INSERT INTO countries VALUES (DEFAULT, 'india', 'IN');
 INSERT INTO countries VALUES (DEFAULT, 'south_africa', 'ZA');
-
+INSERT INTO countries VALUES (DEFAULT, 'usa', 'US');
