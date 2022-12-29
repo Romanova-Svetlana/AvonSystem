@@ -62,7 +62,7 @@ object FilesUtil {
     }
   }
 
-  def openUrlsaveBinaryFile(uri: String, path: String, name: String) = try {
+  def openUrlSaveBinaryFile(uri: String, path: String, name: String) = try {
     val filePath = s"$path$name.${uri.split("\\.").last}" 
     if (new File(s"$filePath").exists == false) {
       import scala.language.postfixOps

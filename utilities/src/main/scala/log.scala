@@ -15,7 +15,7 @@ object LogUtil extends AIO {
     }
   }
 
-  def logdb(res: Byte, msg: String, file: String, err: List[Any] = List()) = {
+  def logdb(res: Byte, msg: String, file: String = "", err: List[Any] = List()) = {
     val e = aioLs(err).mkString("\n")
     val r = res match {
       case 2 => "warn"

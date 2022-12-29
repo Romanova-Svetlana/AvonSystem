@@ -6,6 +6,8 @@ import FilesUtil.{createDir, openFile}
 object Setting {
 
   val mainPath = "/home/sw/projects/avonsystem"
+  val webPath = s"$mainPath/www"
+  val imagesPath = s"$webPath/images/"
   val dataPath = mainPath + "data/"
   val archivePath = dataPath + "archive/"
   val logPath = dataPath + "log/" + DateTime.dateNow + "/"

@@ -24,8 +24,8 @@ object DateTime {
   def dateTimeToLong(datetime: String) = datetime.replaceAll("[-:\\.]", "").toLong
   def dateToInt(date: String) = date.replaceAll("-", "").toInt
 
-  def intToDate(num: Int) = {
-    val s = num.toString
+  def intToDate(i: Int) = {
+    val s = i.toString
     s"${s(0)}${s(1)}${s(2)}${s(3)}-${s(4)}${s(5)}-${s(6)}${s(7)}"
   }
 
