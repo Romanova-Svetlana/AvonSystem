@@ -6,9 +6,9 @@ CREATE TABLE urls_items (
 	url varchar(255),
 	url_type varchar(255),
 	parse_type smallint, -- 0 большинство стран, 1 США
-	date_add date,
+	date_add int,
 	iteration smallint,
-	date_iteration date,
+	date_iteration int,
 	no_iteration boolean,
 	PRIMARY KEY ("urls_items_id"),
 	UNIQUE (url, date_add)
