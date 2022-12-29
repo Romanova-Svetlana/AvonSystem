@@ -42,8 +42,8 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
     id = aioDI(p("\"Id\"")) // есть всегда
     pn = crupStr(aioS(p("\"ProfileNumber\""))) // есть всегда
     prod = (
-      id,
       pn,
+      id,
       (
         crupStr(aioS(p("\"PricePerUnitInformation\""))).toLowerCase, // ml, piece(s), grams (south_africa), N, gm, g (india), Und, PAIR (colombia)
         crupStr(aioS(p("\"UnitPriceMeasureUnit\""))).toLowerCase // количество в юните
@@ -52,10 +52,10 @@ class DataProcessing[T](d: T) extends AIO with TextFormat with ParseT {
         aioDI(p("\"ProductId\"")), 
         crupStr(aioS(p("\"SingleVariantFsc\""))),
         crupStr(aioS(p("\"SingleVariantSku\""))),
-        replaceSql(crupStr(aioS(p("\"Name\"")))), // Название
+        crupStr(aioS(p("\"Name\""))), // Название
         crupStr(aioS(p("\"Slug\""))),
-        replaceSql(crupStr(aioS(p("\"SocialSharingDescription\"")))), // Краткое описание, включает в себя HTML-теги
-        replaceSql(crupStr(aioS(p("\"SearchWords\"")))), // поисковые слова, есть не везде
+        crupStr(aioS(p("\"SocialSharingDescription\""))), // Краткое описание, включает в себя HTML-теги
+        crupStr(aioS(p("\"SearchWords\""))), // поисковые слова, есть не везде
       ),
       (
         aioDSh(p("\"Availability\"")), // доступность, разные небольшие числа, есть всегда // 2 AvailableSoon (Скоро будет доступно), 3 NoLongerAvailable (Больше недоступно), 0,NotForIndividualSale

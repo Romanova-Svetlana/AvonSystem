@@ -6,7 +6,7 @@ trait UrlT {
 }
 
 trait UrlsT {
-	type UrlsT = (String, String, String, Short, Int, Short, Short, Int, String, java.time.LocalDate, Short, java.time.LocalDate, Boolean)
+	type UrlsT = (String, String, String, Short, Int, Short, Short, Int, String, String, Short, String, Boolean)
 }
 
 trait ParseT {

@@ -5,6 +5,7 @@ import scala.util.{Success, Failure}
 import Urls.{sUrls}
 //import UrlsT
 import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil}
+import DateTime.{dateParse, dateNow, dateToInt}
 import FilesUtil.{createDir, openFile}
 import LogUtil.{logdb, log}
 import Setting.{archivePath, imagesPath}
@@ -13,14 +14,15 @@ object ParserData extends App with UrlsT {
 
   args match {
     case Array(date, _*) => 
-      DateTime.dateParse(date) match { 
+      dateParse(date) match { 
         case Success(d) => // Date received successfully. Дата получена успешно.
           thisDayParse(d)
+          logdb(4, s"Парсинг данных за $date завершен.")
         case Failure(err) => 
           logdb(3, s"Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД.", "parserdata.scala", List(err))
       }     
     case _ => // Daily data collection. Ежедневный сбор данных.
-      sUrls match {
+      sUrls() match {
         case Some(x) if (x.nonEmpty) => 
           logdb(1, s"Сбор данных и сохранение в файлы на диске.", "parserdata.scala")
           dailyParse(x)
@@ -61,7 +63,7 @@ object ParserData extends App with UrlsT {
 
   // Daily data collection. Ежедневный сбор данных.
   def dailyParse(urls: List[UrlsT]) = {
-    val dateStart = DateTime.dateNow
+    val dateStart = dateNow
     val datePath = archivePath + dateStart + "/"
     val countries = urls.map({case (dn, lang, _, _, _, _, _, _, _, _, _, _, _) => (dn, lang) }).distinct
 
@@ -83,7 +85,7 @@ object ParserData extends App with UrlsT {
   def thisDayParse(date: java.time.LocalDate) = {
     val datePath = archivePath + date + "/"
 
-    sUrls match {
+    sUrls(false) match {
       case Some(x) if (x.nonEmpty) => 
         for (i <- x) {
           val (dirname, lang, url_type, parse_type, urls_id, countries_id, languages_id, id, url, date_add, iteration, date_iteration, no_iteration) = i
@@ -94,14 +96,13 @@ object ParserData extends App with UrlsT {
             case Failure(err) =>
               openFile(s"$datePath$dirname/$url_type/$id.json") match {
                 case Success(data) => toDB(data)
-                case Failure(err) =>
-                  logdb(2, s"Не удалось считать данные из файла $file.", "parserdata.scala", List(err))
+                case Failure(err) => log("warn", s"Не удалось считать данные из файла $file.", true, List("parserdata.ParserData.thisDayParse", err))
               }
           }
 
           def toDB(data: List[String]) = {
             val file = s"$datePath$dirname/$lang/$url_type/$id.json"
-            new AddToDB(url_type, countries_id, languages_id, date).add(data.head) match {
+            new AddToDB(url_type, parse_type, countries_id, languages_id, dateToInt(date.toString)).add(data.head) match {
               case Success(msg) => msg match {
                 case 1 => log("info", s"Парсинг данных файла $file прошел успешно. Данные в базе обновлены.")
                 case 0 => log("info", s"Парсинг данных файла $file прошел успешно. Данных для обновления не обнаружено.")

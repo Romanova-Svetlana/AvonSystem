@@ -10,12 +10,18 @@ import DbConn.select
 
 object Urls {
 
-  def sUrls = {
+  def sUrls(no_iteration: Boolean = true) = {
+
+    def where = if (no_iteration == true) s"WHERE no_iteration = true" else ""
+//    def where = if (no_iteration == true) s"WHERE no_iteration = true" else s"WHERE countries_id = 1"
+
     val sql = s"""
       SELECT c.dirname, l.code, u.url_type, u.parse_type, u.urls_id, u.countries_id, u.languages_id, u.id, u.url, u.no_iteration FROM urls AS u
         INNER JOIN countries AS c USING (countries_id)
-        INNER JOIN languages AS l USING (languages_id);
+        INNER JOIN languages AS l USING (languages_id) 
+        $where ORDER BY url_type ASC;
   	"""
+
   	select(sql) match {
   		case Success(res) => Some(res.map(col => {
         (
@@ -28,9 +34,9 @@ object Urls {
           col.getShort("languages_id"),
           col.getInt("id"),
           col.getString("url"),
-          dateNow,
+          dateNow.toString,
           1.toShort,
-          dateNow,
+          s"",
           col.getBoolean("no_iteration")
         )
   		}).toList)

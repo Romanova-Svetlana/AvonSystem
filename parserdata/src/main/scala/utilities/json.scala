@@ -3,7 +3,7 @@ package com.avonsystem.parserdata
 import scala.util.parsing.combinator._
 import scala.util.{Failure, Success, Try}
 
-import com.avonsystem.utilities.LogUtil
+import com.avonsystem.utilities.LogUtil.logdb
 
 
 class Json extends JavaTokenParsers {
@@ -26,7 +26,7 @@ object Json extends Json {
 
 	def parserJson(json: String) = parseAll(value, json) match {
     case Success(result, n) => result
-    case Failure(msg, n) => LogUtil.log("warn", "Не удалось конвертировать JSON в данные.", true, List(msg))
+    case Failure(msg, n) => logdb(2, "Не удалось конвертировать JSON в данные.", "json.scala", List(msg))
   }
 
 }

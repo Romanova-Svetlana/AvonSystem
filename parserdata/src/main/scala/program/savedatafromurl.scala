@@ -31,36 +31,52 @@ class SaveDataFromUrl(dataDate: java.time.LocalDate) extends UrlsT {
             timeoutFinish
         }
 
-      case h :: t => 
+      case h :: t if (startDate == dateNow) => 
         val (dirname, code, url_type, parse_type, urls_id, countries_id, languages_id, id, url, date_add, iteration, date_iteration, no_iteration) = h
-
         val path = s"$archivePath$date_add/$dirname/$code/$url_type/$id.json"
 
-        new File(path).exists match {
-          case false => openSaveFile // Скачиваем данные, кладем в файл
-          case true => 
-            log("info", s"Файл $path уже существует, скачивание данных из $url не требуется.")
+        url_type match {
+          case x if (x == "main" || x == "promo") => 
+            no_iteration match {
+              case true => 
+                openSaveFile match {
+                  case Some(data) => 
+                    openUrlSaveData(t, errList)
+                  case None => 
+                    openUrlSaveData(t, h :: errList)
+              }
+              case false => 
+                log("info", s"Cкачивание данных не производится: $url.")
+                openUrlSaveData(t, errList)
+            }
+          case _ => 
             openUrlSaveData(t, errList)
         }
 
         def openSaveFile = {
-          log("info", "Таймаут 1-2 минуты.")
-          timeout(1, 1)
-          openUrl(url) match {
-            case Success(data) => 
-              saveFile(s"$archivePath$date_add/$dirname/$code/$url_type/$id.json", List(data)) match {
-                case Success(sf) => 
-                  log("info", s"Данные из $url успешно сохранены в файл $sf")
-                  openUrlSaveData(t, errList)
+          new File(path).exists match {
+            case false => // Скачиваем данные, кладем в файл
+              log("info", "Таймаут 1-2 минуты.")
+              timeout(1, 1)
+              openUrl(url) match {
+                case Success(data) => 
+                  saveFile(path, List(data)) match {
+                    case Success(sf) => 
+                      log("info", s"Данные из $url успешно сохранены в файл $sf")
+                      Some(data)
+                    case Failure(err) => 
+                      logdb(2, s"Не удалось сохранить данные из $url в файл $path", "savedatafromurl.scala openSaveFile", List(err))
+                      None
+                  }
                 case Failure(err) => 
-                  log("warn", s"Не удалось сохранить данные из $url в файл $archivePath$date_add/$dirname/$code/$url_type/$id.json", true, List(err))
-                  openUrlSaveData(t, h :: errList)
+                  logdb(3, s"Не удалось получить данные из $url", "savedatafromurl.scala openSaveFile", List(err))
+                  None                
               }
-            case Failure(err) => 
-              log("warn", s"Не удалось получить данные из $url", true, List(err))
-              openUrlSaveData(t, h :: errList)
+            case true => 
+              log("info", s"Файл $path уже существует, скачивание данных из $url не требуется.")
+              //DataToDB.fromFile(List(path))
+              openUrlSaveData(t, errList)            }
           }
-        }
 
       case _ => 
         timeoutFinish

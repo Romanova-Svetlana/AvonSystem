@@ -5,18 +5,36 @@ import com.avonsystem.utilities.{LogUtil, DbConn}
 import LogUtil.log
 import DbConn.update
 
-class AddToDB(url_type: String, countries_id: Short, languages_id: Short) {
+class AddToDB(url_type: String, parse_type: Short, countries_id: Short, languages_id: Short, date: Int) {
 
 	def add(d: String) = try {
-  		val data = Json.parserJson(d)
-  		val dp = new DataProcessing(data)
-      val dbu = new DBUpdate(countries_id, languages_id)
+  		val dp = new DataProcessing(Json.parserJson(d))
+      val dbu = new DBUpdate(parse_type, countries_id, languages_id, date)
 
   		url_type match {
   			case "main" => 
+
+
+
+
+/*
           val categories = dp.categoriesList()
 //            dbu.categoriesSQL(categories)
-          val sql = dbu.categoriesParentSQL(categories)
+// dbu.categoriesParentSQL(categories)
+          val productsCards = dp.productsCards
+
+          val sqlCategories = dbu.categoriesSQL(categories) match {
+            case Some(categoriesQuery) if (categoriesQuery != "") =>
+              update(categoriesQuery)
+              dbu.categoriesParentSQL(categories) match {
+                case Some(categoriesParentQuery) => categoriesQuery + categoriesParentQuery
+                case None => 
+              }
+            case Some(_) => 
+            case None => 
+          }
+
+//          val sql = dbu.productsSQL(productsCards)
 
 
 //            ${dbu.productsSQL(dp.productsCards, dp.productsPromotions, dp.productsVariants, dp.productsCategories)}
@@ -27,11 +45,20 @@ class AddToDB(url_type: String, countries_id: Short, languages_id: Short) {
 //          println(sql)
 //          println(dbu.categoriesParentSQL(categories))
           println(sql)
-          update(sql)
-//          Success(0)
-        case "promo" =>
-          dp.promo
+//          update(sql)
+*/
           Success(0)
+        case "promo" =>
+//          println(dbu.sCountriesPromoUrls)
+//          println(dbu.promoSQL(dp.promo))
+          dp.promo match {
+            case Nil => Success(0)
+            case p => 
+//              println(dbu.promoSQL(p))
+//              Success(0)
+              dbu.promoSQL(p)
+          }
+
         case "products" => 
           dp.product
           dp.productV
