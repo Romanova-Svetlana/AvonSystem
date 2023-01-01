@@ -7,7 +7,7 @@ CREATE TABLE urls_items (
 	url_type varchar(255),
 	parse_type smallint, -- 0 большинство стран, 1 США
 	date_add int,
-	iteration smallint,
+	iteration smallint, -- положительное число - номер итерации, 0 скачено, -1 невозможно скачать
 	date_iteration int,
 	no_iteration boolean,
 	PRIMARY KEY ("urls_items_id"),
