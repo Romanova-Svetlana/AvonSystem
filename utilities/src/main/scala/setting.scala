@@ -1,6 +1,5 @@
 package com.avonsystem.utilities
 
-import scala.util.{Success, Failure}
 import FilesUtil.{createDir, openFile}
 
 object Setting {
@@ -13,13 +12,11 @@ object Setting {
   val logPath = dataPath + "log/" + DateTime.dateNow + "/"
   val logFolder = createDir(logPath)
 
-	val conStr = { 
-    openFile(dataPath + "set/dbs.txt", false) match {
-      case Success(c) => s"jdbc:postgresql://${c(0)}/${c(1)}?user=${c(2)}&password=${c(3)}"
-      case Failure(err) => 
-        LogUtil.log("ERROR", "Не удалось получить параметры соединения с базой данных.", true, List(err))
-        ""
-    }
+  val conStr = openFile(s"${dataPath}set/dbs.php") match {
+    case Nil => 
+      LogUtil.log("ERROR", "Не удалось получить параметры соединения с базой данных.", true)
+      s""
+    case c => s"jdbc:postgresql://${c(0)}/${c(1)}?user=${c(2)}&password=${c(3)}"
   }
 
 }
