@@ -49,13 +49,9 @@ class AddToDB(url_type: String, parse_type: Short, countries_id: Short, language
 */
           Success(0)
         case "promo" =>
-//          println(dbu.sCountriesPromoUrls)
-//          println(dbu.promoSQL(dp.promo))
           dp.promo match {
-            case Nil => Success(0)
+            case Nil => Success(-1)
             case p => 
-//              println(dbu.promoSQL(p))
-//              Success(0)
               dbu.promoSQL(p)
           }
 

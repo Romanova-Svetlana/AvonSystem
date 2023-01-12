@@ -2,35 +2,46 @@ package com.avonsystem.parserdata
 
 import scala.util.{Success, Failure}
 
-import Urls.{sUrls}
+import Urls.{sUrls, sUrlsItems}
 //import UrlsT
-import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil}
+import com.avonsystem.utilities.{DateTime, LogUtil, Setting, FilesUtil, AIO}
 import DateTime.{dateParse, dateNow, dateToInt}
 import FilesUtil.{createDir, openFile}
-import LogUtil.{logdb, log}
+import LogUtil.log
 import Setting.{archivePath, imagesPath}
 
-object ParserData extends App with UrlsT {
+object ParserData extends App with UrlsT with AIO {
 
   args match {
     case Array(date, _*) => 
       dateParse(date) match { 
         case Success(d) => // Date received successfully. Дата получена успешно.
           thisDayParse(d)
-          logdb(4, s"Парсинг данных за $date завершен.")
+          log("SUCCESS", s"Парсинг данных за $date завершен", true, List("parserdata.ParserData"))
         case Failure(err) => 
-          logdb(3, s"Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД.", "parserdata.scala", List(err))
+          log("error", s"Неверный формат даты. Введите дату в формате ГГГГ-ММ-ДД", true, List("parserdata.ParserData", err))
       }     
     case _ => // Daily data collection. Ежедневный сбор данных.
+
       sUrls() match {
-        case Some(x) if (x.nonEmpty) => 
-          logdb(1, s"Сбор данных и сохранение в файлы на диске.", "parserdata.scala")
+        case List() => 
+          log("error", s"Ошибка получения списка url. Работа программы прекращена", true, List("parserdata.ParserData"))
+        case x => 
+          log("info", s"Сбор данных и сохранение в файлы на диске", true, List("parserdata.ParserData"))
           dailyParse(x)
-        case None => 
-          logdb(3, s"Ошибка получения списка url. Работа программы прекращена.", "parserdata.scala")
-        case _ => 
-          logdb(2, s"В списке url отсутствуют данные.", "parserdata.scala")
       }
+
+/*
+      val sui = sUrlsItems match {
+        case List() => 
+          logdb(3, s"Ошибка получения списка urls_items. Работа программы прекращена.", "parserdata.scala")
+        case x => 
+          logdb(1, s"Сбор данных и сохранение в файлы на диске.", "parserdata.scala")
+//          dailyParse(x)
+          new SaveDataFromUrl(dateNow).openUrlSaveData(x)
+      }
+      println(aioS(su) + aioS(sui))
+*/
     }
 
 
@@ -61,6 +72,7 @@ object ParserData extends App with UrlsT {
   }
 */
 
+
   // Daily data collection. Ежедневный сбор данных.
   def dailyParse(urls: List[UrlsT]) = {
     val dateStart = dateNow
@@ -77,7 +89,17 @@ object ParserData extends App with UrlsT {
       createDir(s"$imagesPath$dn/$lang/promotions/")
     }
 
-    new SaveDataFromUrl(dateStart).openUrlSaveData(urls)
+    def sdfu(u: List[UrlsT]) = new SaveDataFromUrl(dateStart).openUrlSaveData(urls)
+    new SaveDataFromUrl(dateStart).openUrlSaveData(urls) match {
+      case true => new SaveDataFromUrl(dateStart).openUrlSaveData(sUrlsItems) match {
+        case true => println("OK Items")
+        case false => 
+          println("OK Urls")
+          println("NOT Items")
+      }
+      case false => println("NOT URLS")
+    }
+    
     // на этом месте будет скачивание файлов продуктов, промоакций, изображений
   }
 
@@ -86,37 +108,34 @@ object ParserData extends App with UrlsT {
     val datePath = archivePath + date + "/"
 
     sUrls(false) match {
-      case Some(x) if (x.nonEmpty) => 
-        for (i <- x) {
-          val (dirname, lang, url_type, parse_type, urls_id, countries_id, languages_id, id, url, date_add, iteration, date_iteration, no_iteration) = i
+      case List() =>
+        log("error", s"Ошибка получения списка url. Работа программы прекращена", true, List("parserdata.ParserData.thisDayParse")) 
+      case url => 
+        for (u <- url) {
+          val (dirname, lang, url_type, parse_type, urls_id, countries_id, languages_id, id, url, date_add, iteration, date_iteration, no_iteration) = u
           val file = s"$datePath$dirname/$lang/$url_type/$id.json"
 
           openFile(file) match {
-            case Success(data) => toDB(data)
-            case Failure(err) =>
+            case Nil => 
               openFile(s"$datePath$dirname/$url_type/$id.json") match {
-                case Success(data) => toDB(data)
-                case Failure(err) => log("warn", s"Не удалось считать данные из файла $file.", true, List("parserdata.ParserData.thisDayParse", err))
+                case Nil => log("warn", s"Невозможно обработать данные из файла $file.", true, List("parserdata.ParserData.thisDayParse"))
+                case data => toDB(data)
               }
+            case data => toDB(data)
           }
 
           def toDB(data: List[String]) = {
             val file = s"$datePath$dirname/$lang/$url_type/$id.json"
             new AddToDB(url_type, parse_type, countries_id, languages_id, dateToInt(date.toString)).add(data.head) match {
               case Success(msg) => msg match {
-                case 1 => log("info", s"Парсинг данных файла $file прошел успешно. Данные в базе обновлены.")
-                case 0 => log("info", s"Парсинг данных файла $file прошел успешно. Данных для обновления не обнаружено.")
-                case _ => logdb(3, s"Неизвестный формат данных файла $file", "parserdata.scala toDB")
+                case m if (m > 0) => log("info", s"Парсинг данных файла $file прошел успешно. Данные в базе обновлены.")
+                case 0 => log("info", s"Парсинг данных файла $file прошел успешно. Данных для обновления не обнаружено", true)
+                case _ => log("warn", s"Неизвестный формат данных файла $file", true, List("parserdata.scala toDB"))
               }
-              case Failure(err) => logdb(3, s"Не удалось распарсить данные из файла $file", "parserdata.scala toDB", List(err))
+              case Failure(err) => log("warn", s"Не удалось распарсить данные из файла $file", true, List("parserdata.ParserData.thisDayParse.toDB", err)) 
             }
           }
         }
-        case None => 
-          logdb(3, s"Ошибка получения списка url.", "parserdata.scala thisDayParse")
-        case _ => 
-          logdb(2, s"В списке url отсутствуют данные.", "parserdata.scala thisDayParse")
-
     }
 
   }

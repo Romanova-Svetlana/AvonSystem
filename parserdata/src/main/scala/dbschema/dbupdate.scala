@@ -5,7 +5,7 @@ import scala.util.{Success, Failure}
 
 import com.avonsystem.utilities.{ LogUtil, DbConn, DateTime, TextFormat }
 import DateTime.{dateNow, dateToInt}
-import LogUtil.logdb
+import LogUtil.log
 import DbConn.{select, update}
 
 // https://my.avon.ru/assets/ru-ru/images/product/prod_9804561aa_1_310x310.jpg
@@ -24,7 +24,7 @@ class DBUpdate(parse_type: Short, countries_id: Short, languages_id: Short, date
       )
     ).toList)
   case Failure(err) => 
-    logdb(2, "Не удалось получить данные из таблицы countries_urls.", "dbupdate.scala sCountriesProductsUrls", List(err))
+    log("warn", s"Не удалось получить данные из таблицы countries_urls", true, List("parserdata.DBUpdate.sCountriesProductsUrls"))
     None
   }
 
@@ -47,7 +47,7 @@ class DBUpdate(parse_type: Short, countries_id: Short, languages_id: Short, date
         )
       ).toList)
       case Failure(err) => 
-        logdb(2, "Не удалось получить данные из таблицы countries_urls.", "DBUpdate sCountriesPromoUrls", List(err))
+        log("warn", s"Не удалось получить данные из таблицы countries_urls", true, List("parserdata.DBUpdate.sCountriesUrls"))
         None
     }
   }
@@ -69,7 +69,7 @@ class DBUpdate(parse_type: Short, countries_id: Short, languages_id: Short, date
         )
       ).toList)
       case Failure(err) => 
-        logdb(2, "Не удалось получить данные из таблицы countries_urls.", "DBUpdate promoSQL countriesUrlsDB", List(err))
+        log("warn", s"Не удалось получить данные из таблицы countries_urls", true, List("parserdata.DBUpdate.countriesUrlsDB"))
         None
     }
 
@@ -97,7 +97,7 @@ class DBUpdate(parse_type: Short, countries_id: Short, languages_id: Short, date
       ).toMap)
 
       case Failure(err) => 
-        logdb(2, "Не удалось получить данные из таблицы promotions_tmp.", "dbupdate.scala promoSQL promoDB", List(err))
+        log("warn", s"Не удалось получить данные из таблицы promotions_tmp", true, List("parserdata.DBUpdate.promoDB"))
         None
     }
 
@@ -113,9 +113,9 @@ class DBUpdate(parse_type: Short, countries_id: Short, languages_id: Short, date
       ON CONFLICT (url, date_add) DO NOTHING;
     """
 
-    def sqlInsertUrl(id: Int) = s"""
+    def sqlInsertUrl(pid: Int) = s"""
       INSERT INTO urls_items 
-      VALUES(DEFAULT, $countries_id, $languages_id, $id, '$cPromoUrl$id', 'promotions', $parse_type, $date, 1, $dateNowInt, false)
+      VALUES(DEFAULT, $countries_id, $languages_id, $pid, '$cPromoUrl$pid', 'promotions', $parse_type, $date, 1, $dateNowInt, false)
       ON CONFLICT (url, date_add) DO NOTHING;
     """
 
